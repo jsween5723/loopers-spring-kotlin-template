@@ -3,7 +3,6 @@ package com.loopers.domain.example
 import com.loopers.infrastructure.example.ExampleJpaRepository
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
-import com.loopers.utils.DatabaseCleanUp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -18,11 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest
 class ExampleServiceIntegrationTest @Autowired constructor(
     private val exampleService: ExampleService,
     private val exampleJpaRepository: ExampleJpaRepository,
-    private val databaseCleanUp: DatabaseCleanUp,
+//    private val databaseCleanUp: DatabaseCleanUp,
 ) {
     @AfterEach
     fun tearDown() {
-        databaseCleanUp.truncateAllTables()
+//        databaseCleanUp.truncateAllTables()
     }
 
     @DisplayName("예시를 조회할 때,")

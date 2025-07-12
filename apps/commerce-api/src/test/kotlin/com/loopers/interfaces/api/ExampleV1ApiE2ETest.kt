@@ -3,7 +3,6 @@ package com.loopers.interfaces.api
 import com.loopers.domain.example.ExampleModel
 import com.loopers.infrastructure.example.ExampleJpaRepository
 import com.loopers.interfaces.api.example.ExampleV1Dto
-import com.loopers.utils.DatabaseCleanUp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
@@ -22,7 +21,7 @@ import org.springframework.http.HttpStatus
 class ExampleV1ApiE2ETest @Autowired constructor(
     private val testRestTemplate: TestRestTemplate,
     private val exampleJpaRepository: ExampleJpaRepository,
-    private val databaseCleanUp: DatabaseCleanUp,
+//    private val databaseCleanUp: DatabaseCleanUp,
 ) {
     companion object {
         private val ENDPOINT_GET: (Long) -> String = { id: Long -> "/api/v1/examples/$id" }
@@ -30,7 +29,7 @@ class ExampleV1ApiE2ETest @Autowired constructor(
 
     @AfterEach
     fun tearDown() {
-        databaseCleanUp.truncateAllTables()
+//        databaseCleanUp.truncateAllTables()
     }
 
     @DisplayName("GET /api/v1/examples/{id}")
