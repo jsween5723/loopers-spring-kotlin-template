@@ -2,13 +2,11 @@ import org.gradle.api.Project.DEFAULT_VERSION
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 /** --- configuration functions --- */
-fun getGitHash(): String {
-    return runCatching {
+fun getGitHash(): String = runCatching {
         providers.exec {
             commandLine("git", "rev-parse", "--short", "HEAD")
         }.standardOutput.asText.get().trim()
     }.getOrElse { "init" }
-}
 
 /** --- project configurations --- */
 plugins {
@@ -54,7 +52,9 @@ subprojects {
 
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:${project.properties["springCloudDependenciesVersion"]}")
+            mavenBom(
+                "org.springframework.cloud:spring-cloud-dependencies:${project.properties["springCloudDependenciesVersion"]}",
+            )
         }
     }
 
@@ -72,6 +72,7 @@ subprojects {
         testRuntimeOnly("org.junit.platform:junit-platform-launcher")
         // testcontainers:mysql 이 jdbc 사용함
         testRuntimeOnly("com.mysql:mysql-connector-j")
+        testRuntimeOnly("com.h2database:h2")
         testImplementation("org.springframework.boot:spring-boot-starter-test")
         testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
         testImplementation("com.ninja-squad:springmockk:${project.properties["springMockkVersion"]}")
@@ -79,9 +80,9 @@ subprojects {
         testImplementation("org.mockito.kotlin:mockito-kotlin:${project.properties["mockitoKotlinVersion"]}")
         testImplementation("org.instancio:instancio-junit:${project.properties["instancioJUnitVersion"]}")
         // Testcontainers
-        testImplementation("org.springframework.boot:spring-boot-testcontainers")
-        testImplementation("org.testcontainers:testcontainers")
-        testImplementation("org.testcontainers:junit-jupiter")
+//        testImplementation("org.springframework.boot:spring-boot-testcontainers")
+//        testImplementation("org.testcontainers:testcontainers")
+//        testImplementation("org.testcontainers:junit-jupiter")
     }
 
     tasks.withType(Jar::class) { enabled = true }

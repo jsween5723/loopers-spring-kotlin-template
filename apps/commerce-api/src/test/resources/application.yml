@@ -1,0 +1,5 @@
+datasource:
+  mysql-jpa:
+    main:
+      jdbc-url: jdbc:h2:mem:test
+      username: sa
