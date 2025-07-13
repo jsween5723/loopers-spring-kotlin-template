@@ -44,4 +44,23 @@ class UserTest {
         // assert
         assertThrows<IllegalArgumentException> { command.toUser() }
     }
+
+    @ParameterizedTest
+    @ValueSource(
+        strings = [
+            "2000-00-01",
+            "2000-01-00",
+            "2000-1-01",
+            "2000-01-1",
+            "20-01-01",
+            "2000/01/01",
+        ],
+    )
+    fun `생년월일이 yyyy-MM-dd 형식에 맞지 않으면, User 객체 생성에 실패한다`(birth: String) {
+        // arrange
+        val command = UserCommandGenerator.Create(birth = birth)
+        // act
+        // assert
+        assertThrows<IllegalArgumentException> { command.toUser() }
+    }
 }
