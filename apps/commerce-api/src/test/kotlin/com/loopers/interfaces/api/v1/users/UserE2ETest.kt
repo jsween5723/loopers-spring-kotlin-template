@@ -2,12 +2,16 @@ package com.loopers.interfaces.api.v1.users
 
 import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.CREATE_URI
+import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.GET_ME_URI
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.postForEntity
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
+import kotlin.test.assertEquals
 
 @ApiTest
 class UserE2ETest {
@@ -41,5 +45,28 @@ class UserE2ETest {
         )
         // assert
         assertEquals(400, response.statusCode.value())
+    }
+
+    @Test
+    fun `내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+        // arrange
+        val 사용자 = userE2ETestFixture.회원가입()
+        userE2ETestFixture.사용자_지정(사용자.id)
+        // act
+        val result = userE2ETestFixture.testRestTemplate.exchange(
+            GET_ME_URI,
+            HttpMethod.GET,
+            HttpEntity.EMPTY,
+            UserResponse.Me::class.java,
+        )
+        // assert
+        assertEquals(200, result.statusCode.value())
+        assertNotNull(result.body)
+        assertEquals(사용자.id, requireNotNull(result.body?.id))
+        assertEquals(사용자.name, requireNotNull(result.body?.name))
+        assertEquals(사용자.username, requireNotNull(result.body?.username))
+        assertEquals(사용자.email, requireNotNull(result.body?.email))
+        assertEquals(사용자.gender, requireNotNull(result.body?.gender))
+        assertEquals(사용자.birth, requireNotNull(result.body?.birth))
     }
 }
