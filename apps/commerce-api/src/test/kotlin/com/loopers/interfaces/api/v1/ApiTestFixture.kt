@@ -13,6 +13,7 @@ class ApiTestFixture(environment: Environment) {
     val testRestTemplate = TestRestTemplate(RestTemplateBuilder()).also {
         it.setUriTemplateHandler(LocalHostUriTemplateHandler(environment))
     }
+
     fun 사용자_지정(userId: Long) {
         testRestTemplate.restTemplate.interceptors.addFirst { request, body, execution ->
             request.headers.set("X-USER-ID", userId.toString())
@@ -20,13 +21,13 @@ class ApiTestFixture(environment: Environment) {
         }
     }
 
-    fun 기본_사용자_지정() {
-        val 사용자 = 회원가입()
+    fun 기본_사용자_지정(): UserResponse.Create = 회원가입().also { user ->
         testRestTemplate.restTemplate.interceptors.addFirst { request, body, execution ->
-            request.headers.set("X-USER-ID", 사용자.id.toString())
+            request.headers.set("X-USER-ID", user.id.toString())
             execution.execute(request, body)
         }
     }
+
     fun 회원가입(request: UserRequest.Create = UserRequestGenerator.Create()): UserResponse.Create {
         val response = testRestTemplate.postForEntity<UserResponse.Create>(
             CREATE_URI,
