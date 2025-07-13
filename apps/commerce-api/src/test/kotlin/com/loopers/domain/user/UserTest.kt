@@ -10,7 +10,7 @@ class UserTest {
     @ValueSource(
         strings = [
             "invalidusername",
-            "invalid",
+            "invalid111",
             "invalid_",
             "",
             "invalid!@#",

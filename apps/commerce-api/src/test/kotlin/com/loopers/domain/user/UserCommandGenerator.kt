@@ -18,8 +18,8 @@ object UserCommandGenerator {
     private fun generateGender(): String = if (Random.nextBoolean()) "F" else "M"
     private fun generateName(): String = UUID.randomUUID()
         .toString()
-        .slice(2..8)
-    private fun generateUsername(): String = UUID.randomUUID().toString()
+        .slice(0..2)
+    private fun generateUsername(): String = UUID.randomUUID().toString().slice(0..7)
     private fun generateBirth(): String = LocalDate.ofEpochDay(
         Random.nextLong(
             LocalDate.of(1990, 1, 1)
