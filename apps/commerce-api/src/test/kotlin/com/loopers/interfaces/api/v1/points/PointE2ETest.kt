@@ -6,6 +6,7 @@ import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.patchForObject
+import org.springframework.http.ProblemDetail
 import kotlin.test.assertEquals
 
 @ApiTest
@@ -19,5 +20,15 @@ class PointE2ETest {
         val result = fixture.testRestTemplate.patchForObject<UserPointResponse.Charge>(POINT_CHARGE_URI, request)
         // arrange
         assertEquals(0, 1000.toBigDecimal().compareTo(requireNotNull(result?.point)))
+    }
+
+    @Test
+    fun `X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+        // arrange
+        val request = PointRequestGenerator.Charge(amount = 400.toBigDecimal())
+        // act
+        val result = fixture.testRestTemplate.patchForObject<ProblemDetail>(POINT_CHARGE_URI, request)
+        // assert
+        assertEquals(400, requireNotNull(result?.status))
     }
 }
