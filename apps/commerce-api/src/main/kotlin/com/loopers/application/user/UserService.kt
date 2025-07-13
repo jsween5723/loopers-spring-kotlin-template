@@ -7,5 +7,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(private val repository: UserRepository) {
+    fun read(userId: Long) = repository.findBy(userId)
     fun create(command: UserCommand.Create): User = repository.save(command.toUser())
 }
