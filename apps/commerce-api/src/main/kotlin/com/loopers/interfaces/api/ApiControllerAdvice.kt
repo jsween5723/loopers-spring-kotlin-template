@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -30,6 +31,13 @@ class ApiControllerAdvice {
     fun handle(e: CoreException): ProblemDetail {
         log.warn("CoreException : {}", e.customMessage ?: e.message, e)
         return failureResponse(errorType = e.errorType, errorMessage = e.customMessage)
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun handle(e: DataIntegrityViolationException): ProblemDetail {
+        log.warn("ConstraintViolationException : {}", e.localizedMessage)
+        return failureResponse(errorType = ErrorType.CONFLICT, errorMessage = e.localizedMessage)
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
