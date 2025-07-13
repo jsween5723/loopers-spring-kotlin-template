@@ -4,6 +4,6 @@ import java.math.BigDecimal
 import kotlin.random.Random
 
 object PointRequestGenerator {
-    fun Charge(point: BigDecimal = generatePoint()) = PointRequest.Charge(point = point)
+    fun Charge(amount: BigDecimal = generatePoint()) = PointRequest.Charge(amount = amount)
     private fun generatePoint() = Random.nextLong(1000, 100000).toBigDecimal()
 }
