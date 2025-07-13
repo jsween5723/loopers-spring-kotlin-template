@@ -9,7 +9,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
 
 class AuthenticationResolver : HandlerMethodArgumentResolver {
-    override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == Authentication::class.java
+    override fun supportsParameter(parameter: MethodParameter): Boolean =
+        parameter.parameterType == Authentication::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
@@ -17,12 +18,11 @@ class AuthenticationResolver : HandlerMethodArgumentResolver {
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
     ): Any = runCatching {
-        webRequest.getNativeRequest(HttpServletRequest::class.java)
-            ?.getHeader("X-USER-ID")
-            ?.let {
+        webRequest.getNativeRequest(HttpServletRequest::class.java)!!
+            .getHeader("X-USER-ID")
+            .let {
                 Authentication(id = it.toLong())
             }
-            ?: Authentication(id = -1L)
     }.getOrElse {
         Authentication(-1L)
     }
