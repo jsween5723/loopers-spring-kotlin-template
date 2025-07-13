@@ -1,9 +1,10 @@
 package com.loopers.interfaces.api.v1.users
 
 import com.loopers.interfaces.api.v1.ApiTest
-import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.CREATE_URI
-import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.GET_ME_URI
-import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.UNAVAILABLE_USER_ID
+import com.loopers.interfaces.api.v1.ApiTestFixture
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.CREATE_URI
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_ME_URI
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -12,16 +13,15 @@ import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
-import kotlin.test.assertEquals
 
 @ApiTest
 class UserE2ETest {
     @Test
-    fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+    fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
         val create = UserRequestGenerator.Create()
         // act
-        val response = userE2ETestFixture.testRestTemplate.postForEntity<UserResponse.Create>(
+        val response = fixture.testRestTemplate.postForEntity<UserResponse.Create>(
             CREATE_URI,
             create,
         )
@@ -36,11 +36,11 @@ class UserE2ETest {
     }
 
     @Test
-    fun `회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+    fun `회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
         val create = UserRequestGenerator.Create(gender = "")
         // act
-        val response = userE2ETestFixture.testRestTemplate.postForEntity<ProblemDetail>(
+        val response = fixture.testRestTemplate.postForEntity<ProblemDetail>(
             CREATE_URI,
             create,
         )
@@ -49,12 +49,12 @@ class UserE2ETest {
     }
 
     @Test
-    fun `내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+    fun `내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
-        val 사용자 = userE2ETestFixture.회원가입()
-        userE2ETestFixture.사용자_지정(사용자.id)
+        val 사용자 = fixture.회원가입()
+        fixture.사용자_지정(사용자.id)
         // act
-        val result = userE2ETestFixture.testRestTemplate.exchange(
+        val result = fixture.testRestTemplate.exchange(
             GET_ME_URI,
             HttpMethod.GET,
             HttpEntity.EMPTY,
@@ -72,11 +72,11 @@ class UserE2ETest {
     }
 
     @Test
-    fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+    fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
-        userE2ETestFixture.사용자_지정(UNAVAILABLE_USER_ID)
+        fixture.사용자_지정(UNAVAILABLE_USER_ID)
         // act
-        val result = userE2ETestFixture.testRestTemplate.exchange(
+        val result = fixture.testRestTemplate.exchange(
             GET_ME_URI,
             HttpMethod.GET,
             HttpEntity.EMPTY,

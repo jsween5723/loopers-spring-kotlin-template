@@ -1,14 +1,16 @@
 package com.loopers.interfaces.api.v1
 
-import com.loopers.interfaces.api.v1.users.UserE2ETestFixture
+import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Scope
+import org.springframework.core.env.Environment
 
 @TestConfiguration
 class ApiTestConfiguration {
     @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     fun userTestFixture(
-        testRestTemplate: TestRestTemplate,
-    ) = UserE2ETestFixture(testRestTemplate)
+        environment: Environment,
+    ) = ApiTestFixture(environment)
 }
