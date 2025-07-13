@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.postForEntity
+import org.springframework.http.ProblemDetail
 
 @ApiTest
 class UserE2ETest {
@@ -27,5 +28,18 @@ class UserE2ETest {
         assertEquals(create.email, requireNotNull(response.body?.email))
         assertEquals(create.gender, requireNotNull(response.body?.gender))
         assertEquals(create.birth, requireNotNull(response.body?.birth))
+    }
+
+    @Test
+    fun `회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+        // arrange
+        val create = UserRequestGenerator.Create(gender = "")
+        // act
+        val response = userE2ETestFixture.testRestTemplate.postForEntity<ProblemDetail>(
+            CREATE_URI,
+            create,
+        )
+        // assert
+        assertEquals(400, response.statusCode.value())
     }
 }
