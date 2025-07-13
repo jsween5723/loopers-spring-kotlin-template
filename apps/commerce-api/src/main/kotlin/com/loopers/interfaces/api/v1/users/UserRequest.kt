@@ -5,13 +5,13 @@ import jakarta.validation.constraints.NotBlank
 
 class UserRequest {
     data class Create(
-        @NotBlank
+        @field:NotBlank
         val name: String,
-        @NotBlank
+        @field:NotBlank
         val gender: String,
-        @NotBlank
+        @field:NotBlank
         val email: String,
-        @NotBlank
+        @field:NotBlank
         val birth: String,
     ) {
         fun toCommand() =
