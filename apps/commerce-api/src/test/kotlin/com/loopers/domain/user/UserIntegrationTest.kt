@@ -1,6 +1,7 @@
 package com.loopers.domain.user
 
 import com.loopers.domain.IntegrationTest
+import com.loopers.domain.user.UserIntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
 import org.junit.jupiter.api.Test
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 @IntegrationTest
 class UserIntegrationTest {
@@ -49,5 +51,14 @@ class UserIntegrationTest {
         assertEquals(existUser.gender, result.gender)
         assertEquals(existUser.email, result.email)
         assertEquals(existUser.birth, result.birth)
+    }
+
+    @Test
+    fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`(@Autowired fixture: UserIntegrationTestFixture) {
+        // arrange
+        // act
+        val result = fixture.userService.read(NO_EXIST_USER_ID)
+        // assert
+        assertNull(result)
     }
 }
