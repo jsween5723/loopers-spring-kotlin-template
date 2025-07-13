@@ -9,4 +9,9 @@ class UserPointResponse private constructor() {
             fun fromUserPoint(entity: UserPoint): Charge = Charge(entity.point)
         }
     }
+    data class GetMine(val point: BigDecimal) {
+        companion object {
+            fun fromUserPoint(entity: UserPoint): GetMine = GetMine(entity.point)
+        }
+    }
 }
