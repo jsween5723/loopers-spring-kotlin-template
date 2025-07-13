@@ -2,8 +2,8 @@ package com.loopers.interfaces.api.v1.users
 
 import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.CREATE_URI
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_ME_URI
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_CREATE_URI
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -22,7 +22,7 @@ class UserE2ETest {
         val create = UserRequestGenerator.Create()
         // act
         val response = fixture.testRestTemplate.postForEntity<UserResponse.Create>(
-            CREATE_URI,
+            USER_CREATE_URI,
             create,
         )
         // assert
@@ -41,7 +41,7 @@ class UserE2ETest {
         val create = UserRequestGenerator.Create(gender = "")
         // act
         val response = fixture.testRestTemplate.postForEntity<ProblemDetail>(
-            CREATE_URI,
+            USER_CREATE_URI,
             create,
         )
         // assert
@@ -55,7 +55,7 @@ class UserE2ETest {
         fixture.사용자_지정(사용자.id)
         // act
         val result = fixture.testRestTemplate.exchange(
-            GET_ME_URI,
+            USER_GET_ME_URI,
             HttpMethod.GET,
             HttpEntity.EMPTY,
             UserResponse.GetMe::class.java,
@@ -77,7 +77,7 @@ class UserE2ETest {
         fixture.사용자_지정(UNAVAILABLE_USER_ID)
         // act
         val result = fixture.testRestTemplate.exchange(
-            GET_ME_URI,
+            USER_GET_ME_URI,
             HttpMethod.GET,
             HttpEntity.EMPTY,
             ProblemDetail::class.java,

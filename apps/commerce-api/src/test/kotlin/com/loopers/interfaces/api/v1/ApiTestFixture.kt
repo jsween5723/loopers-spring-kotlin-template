@@ -30,15 +30,16 @@ class ApiTestFixture(environment: Environment) {
 
     fun 회원가입(request: UserRequest.Create = UserRequestGenerator.Create()): UserResponse.Create {
         val response = testRestTemplate.postForEntity<UserResponse.Create>(
-            CREATE_URI,
+            USER_CREATE_URI,
             request,
         )
         return response.body!!
     }
 
     companion object {
-        const val CREATE_URI = "/api/v1/users"
-        const val GET_ME_URI = "/api/v1/users/me"
+        const val USER_CREATE_URI = "/api/v1/users"
+        const val USER_GET_ME_URI = "/api/v1/users/me"
+        const val POINT_CHARGE_URI = "/api/v1/points/charge"
         const val UNAVAILABLE_USER_ID = -1L
     }
 }
