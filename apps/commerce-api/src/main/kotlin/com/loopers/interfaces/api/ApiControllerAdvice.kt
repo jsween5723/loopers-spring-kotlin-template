@@ -48,6 +48,13 @@ class ApiControllerAdvice {
         return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = e.localizedMessage)
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBadRequest(e: IllegalArgumentException): ProblemDetail {
+        log.warn(e.stackTraceToString())
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = e.localizedMessage)
+    }
+
     @ExceptionHandler(MissingServletRequestParameterException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleBadRequest(e: MissingServletRequestParameterException): ProblemDetail {

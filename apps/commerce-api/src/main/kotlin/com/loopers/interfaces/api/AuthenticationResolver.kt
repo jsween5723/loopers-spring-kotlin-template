@@ -24,6 +24,6 @@ class AuthenticationResolver : HandlerMethodArgumentResolver {
                 Authentication(id = it.toLong())
             }
     }.getOrElse {
-        Authentication(-1L)
+        throw IllegalArgumentException("X-USER-ID가 비어있습니다.")
     }
 }
