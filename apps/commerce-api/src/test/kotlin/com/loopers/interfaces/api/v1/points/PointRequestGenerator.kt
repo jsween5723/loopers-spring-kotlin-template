@@ -1,6 +1,9 @@
 package com.loopers.interfaces.api.v1.points
 
+import java.math.BigDecimal
+import kotlin.random.Random
+
 object PointRequestGenerator {
-//    fun Charge(point: BigDecimal = generatePoint()) = PointRequest.Charge(point = point)
-//    private fun generatePoint() = BigDecimal.valueOf(Random.nextLong(1000, 100000))
+    fun Charge(point: BigDecimal = generatePoint()) = PointRequest.Charge(point = point)
+    private fun generatePoint() = Random.nextLong(1000, 100000).toBigDecimal()
 }
