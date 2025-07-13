@@ -23,5 +23,6 @@ class UserE2ETestFixture(val testRestTemplate: TestRestTemplate) {
     companion object {
         const val CREATE_URI = "/api/v1/users"
         const val GET_ME_URI = "/api/v1/users/me"
+        const val UNAVAILABLE_USER_ID = -1L
     }
 }

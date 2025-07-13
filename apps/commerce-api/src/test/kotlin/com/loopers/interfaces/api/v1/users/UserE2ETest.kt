@@ -3,6 +3,7 @@ package com.loopers.interfaces.api.v1.users
 import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.CREATE_URI
 import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.GET_ME_URI
+import com.loopers.interfaces.api.v1.users.UserE2ETestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -68,5 +69,20 @@ class UserE2ETest {
         assertEquals(사용자.email, requireNotNull(result.body?.email))
         assertEquals(사용자.gender, requireNotNull(result.body?.gender))
         assertEquals(사용자.birth, requireNotNull(result.body?.birth))
+    }
+
+    @Test
+    fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`(@Autowired userE2ETestFixture: UserE2ETestFixture) {
+        // arrange
+        userE2ETestFixture.사용자_지정(UNAVAILABLE_USER_ID)
+        // act
+        val result = userE2ETestFixture.testRestTemplate.exchange(
+            GET_ME_URI,
+            HttpMethod.GET,
+            HttpEntity.EMPTY,
+            ProblemDetail::class.java,
+        )
+        // assert
+        assertEquals(404, result.statusCode.value())
     }
 }
