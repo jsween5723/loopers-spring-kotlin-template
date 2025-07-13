@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 @IntegrationTest
 class UserPointIntegrationTest {
@@ -35,5 +36,14 @@ class UserPointIntegrationTest {
             충전된_포인트.point
         .compareTo(requireNotNull(myPoint?.point)),
         )
+    }
+
+    @Test
+    fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`(@Autowired fixture: IntegrationTestFixture) {
+        // arrange
+        // act
+        val result = userPointFacade.getMe(NO_EXIST_USER_ID)
+        // assert
+        assertNull(result)
     }
 }

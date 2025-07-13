@@ -19,7 +19,7 @@ class IntegrationTestFixture(val userService: UserService, val userPointService:
 
     fun 충전하기(
         command: UserPointCommand.Charge = UserPointCommandGenerator.Charge(
-            userId = userId,
+            userId = this.userId,
         ),
     ): UserPoint = userPointService.charge(command)
 
