@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 @IntegrationTest
@@ -32,5 +33,21 @@ class UserIntegrationTest {
         // act
         // assert
         assertThrows<DataIntegrityViolationException> { fixture.userService.create(UserCommandGenerator.Create(username = 가입된_사용자.username)) }
+    }
+
+    @Test
+    fun `해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다`(@Autowired fixture: UserIntegrationTestFixture) {
+        // arrange
+        val existUser = fixture.회원가입()
+        // act
+        val result = fixture.userService.read(existUser.id)
+        // assert
+        assertNotNull(result)
+        assertEquals(existUser.name, result.name)
+        assertEquals(existUser.username, result.username)
+        assertEquals(existUser.id, result.id)
+        assertEquals(existUser.gender, result.gender)
+        assertEquals(existUser.email, result.email)
+        assertEquals(existUser.birth, result.birth)
     }
 }
