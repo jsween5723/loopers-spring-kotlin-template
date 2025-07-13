@@ -2,11 +2,15 @@ package com.loopers.interfaces.api.v1.points
 
 import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_MY_POINT_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.patchForObject
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
 import kotlin.test.assertEquals
 
@@ -24,7 +28,7 @@ class UserPointE2ETest {
     }
 
     @Test
-    fun `존재하지 않는 유저로 요청할 경우, 404 Not Found 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+    fun `존재하지 않는 유저로 충전할 경우, 404 Not Found 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
         fixture.사용자_지정(UNAVAILABLE_USER_ID)
         val request = UserPointRequestGenerator.Charge()
@@ -35,12 +39,12 @@ class UserPointE2ETest {
     }
 
     @Test
-    fun `X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+    fun `조회 시 X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
         val request = UserPointRequestGenerator.Charge(amount = 400.toBigDecimal())
         // act
-        val result = fixture.testRestTemplate.patchForObject<ProblemDetail>(POINT_CHARGE_URI, request)
+        val result = fixture.testRestTemplate.exchange<ProblemDetail>(GET_MY_POINT_URI, HttpMethod.GET, HttpEntity.EMPTY, request)
         // assert
-        assertEquals(400, requireNotNull(result?.status))
+        assertEquals(400, requireNotNull(result.body?.status))
     }
 }

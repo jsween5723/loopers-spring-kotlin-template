@@ -40,6 +40,7 @@ class ApiTestFixture(environment: Environment) {
         const val USER_CREATE_URI = "/api/v1/users"
         const val USER_GET_ME_URI = "/api/v1/users/me"
         const val POINT_CHARGE_URI = "/api/v1/points/charge"
+        const val GET_MY_POINT_URI = "/api/v1/points"
         const val UNAVAILABLE_USER_ID = -1L
     }
 }
