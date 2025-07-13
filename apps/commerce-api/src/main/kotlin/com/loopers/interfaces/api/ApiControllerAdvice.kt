@@ -52,12 +52,8 @@ class ApiControllerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleBadRequest(e: MethodArgumentNotValidException): ProblemDetail {
-        log.warn(e.toString())
-//        val name = e.name
-//        val type = e.requiredType?.simpleName ?: "unknown"
-//        val value = e.value ?: "null"
-//        val message = "요청 파라미터 '$name' (타입: $type)의 값 '$value'이(가) 잘못되었습니다."
-        return failureResponse(errorType = ErrorType.BAD_REQUEST)
+        log.warn(e.stackTraceToString())
+        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = e.localizedMessage)
     }
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
@@ -131,7 +127,9 @@ class ApiControllerAdvice {
     ): ProblemDetail = failureResponse(
         errorType = ErrorType.NOT_FOUND,
         errorMessage = e.localizedMessage,
-    )
+    ).also {
+        log.warn("No such element: ${e.localizedMessage}")
+    }
 
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
