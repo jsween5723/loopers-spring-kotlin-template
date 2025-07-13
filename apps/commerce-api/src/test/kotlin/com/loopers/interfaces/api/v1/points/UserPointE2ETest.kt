@@ -41,10 +41,21 @@ class UserPointE2ETest {
     @Test
     fun `조회 시 X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
-        val request = UserPointRequestGenerator.Charge(amount = 400.toBigDecimal())
         // act
-        val result = fixture.testRestTemplate.exchange<ProblemDetail>(GET_MY_POINT_URI, HttpMethod.GET, HttpEntity.EMPTY, request)
+        val result = fixture.testRestTemplate.exchange<ProblemDetail>(GET_MY_POINT_URI, HttpMethod.GET, HttpEntity.EMPTY)
         // assert
         assertEquals(400, requireNotNull(result.body?.status))
+    }
+
+    @Test
+    fun `포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
+        // arrange
+        fixture.기본_사용자_지정()
+        val 기존_포인트 = fixture.포인트_충전()
+        // act
+        val result = fixture.testRestTemplate.exchange<UserPointResponse.GetMine>(GET_MY_POINT_URI, HttpMethod.GET, HttpEntity.EMPTY)
+        // assert
+        assertEquals(200, requireNotNull(result.statusCode.value()))
+        assertEquals(0, requireNotNull(result.body?.point).compareTo(requireNotNull(기존_포인트?.point)))
     }
 }

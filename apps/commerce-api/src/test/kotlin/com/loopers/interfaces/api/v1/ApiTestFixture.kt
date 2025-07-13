@@ -1,10 +1,14 @@
 package com.loopers.interfaces.api.v1
 
+import com.loopers.interfaces.api.v1.points.UserPointRequest
+import com.loopers.interfaces.api.v1.points.UserPointRequestGenerator
+import com.loopers.interfaces.api.v1.points.UserPointResponse
 import com.loopers.interfaces.api.v1.users.UserRequest
 import com.loopers.interfaces.api.v1.users.UserRequestGenerator
 import com.loopers.interfaces.api.v1.users.UserResponse
 import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.test.web.client.patchForObject
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.env.Environment
@@ -35,6 +39,12 @@ class ApiTestFixture(environment: Environment) {
         )
         return response.body!!
     }
+
+    fun 포인트_충전(request: UserPointRequest.Charge = UserPointRequestGenerator.Charge()): UserPointResponse.Charge? =
+        testRestTemplate.patchForObject<UserPointResponse.Charge>(
+            POINT_CHARGE_URI,
+            request,
+        )
 
     companion object {
         const val USER_CREATE_URI = "/api/v1/users"
