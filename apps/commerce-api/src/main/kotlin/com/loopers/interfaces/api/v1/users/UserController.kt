@@ -21,5 +21,7 @@ class UserController(private val userService: UserService) {
     @GetMapping("me")
     fun getMe(
         authentication: Authentication,
-    ): UserResponse.GetMe? = userService.read(authentication.id)?.let { UserResponse.GetMe.fromUser(it) }
+    ): UserResponse.GetMe =
+        userService.read(authentication.id)?.let { UserResponse.GetMe.fromUser(it) }
+            ?: throw NoSuchElementException("${authentication.id} 식별자를 가진 사용자는 존재하지 않습니다.")
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.ServerWebInputException
-import org.springframework.web.servlet.resource.NoResourceFoundException
 import kotlin.collections.joinToString
 import kotlin.jvm.java
 import kotlin.text.isNotEmpty
@@ -125,11 +124,14 @@ class ApiControllerAdvice {
         }
     }
 
-    @ExceptionHandler(NoResourceFoundException::class)
+    @ExceptionHandler(NoSuchElementException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNotFound(
-        e: NoResourceFoundException,
-    ): ProblemDetail = failureResponse(errorType = ErrorType.NOT_FOUND)
+        e: NoSuchElementException,
+    ): ProblemDetail = failureResponse(
+        errorType = ErrorType.NOT_FOUND,
+        errorMessage = e.localizedMessage,
+    )
 
     @ExceptionHandler(Throwable::class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
