@@ -7,18 +7,19 @@ import kotlin.random.Random
 
 object UserRequestGenerator {
     fun Create(
+        username: String = generateUsername(),
         name: String = generateName(),
         gender: String = generateGender(),
         email: String = generateEmail(),
         birth: String = generateBirth(),
-    ) = UserRequest.Create(name = name, gender = gender, email = email, birth = birth)
+    ) = UserRequest.Create(username = username, name = name, gender = gender, email = email, birth = birth)
 
     private fun generateEmail(): String = "${UUID.randomUUID()}@example.com"
     private fun generateGender(): String = if (Random.nextBoolean()) "F" else "M"
     private fun generateName(): String = UUID.randomUUID()
         .toString()
         .slice(2..8)
-
+    private fun generateUsername(): String = UUID.randomUUID().toString()
     private fun generateBirth(): String = LocalDate.ofEpochDay(
         Random.nextLong(
             LocalDate.of(1990, 1, 1)

@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank
 class UserRequest {
     data class Create(
         @field:NotBlank
+        val username: String,
+        @field:NotBlank
         val name: String,
         @field:NotBlank
         val gender: String,
@@ -15,6 +17,6 @@ class UserRequest {
         val birth: String,
     ) {
         fun toCommand() =
-            UserCommand.Create(name = name, email = email, gender = gender, birth = birth)
+            UserCommand.Create(username = username, name = name, email = email, gender = gender, birth = birth)
     }
 }
