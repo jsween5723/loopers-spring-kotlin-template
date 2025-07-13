@@ -1,9 +1,8 @@
 package com.loopers.domain.user
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 object UserCommandGenerator {
     fun Create(
@@ -20,14 +19,7 @@ object UserCommandGenerator {
         .toString()
         .slice(0..2)
     private fun generateUsername(): String = UUID.randomUUID().toString().slice(0..7)
-    private fun generateBirth(): String = LocalDate.ofEpochDay(
-        Random.nextLong(
-            LocalDate.of(1990, 1, 1)
-                .toEpochDay(),
-            LocalDate.now()
-                .minusYears(14)
-                .toEpochDay(),
-        ),
-    )
-        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    private fun generateBirth(): String = "${
+        Random.nextInt(1990..2020)
+    }-${"%02d".format(Random.nextInt(1..12))}-${"%02d".format(Random.nextInt(1..27))}"
 }

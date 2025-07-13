@@ -57,7 +57,7 @@ class UserE2ETest {
             GET_ME_URI,
             HttpMethod.GET,
             HttpEntity.EMPTY,
-            UserResponse.Me::class.java,
+            UserResponse.GetMe::class.java,
         )
         // assert
         assertEquals(200, result.statusCode.value())

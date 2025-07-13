@@ -1,9 +1,8 @@
 package com.loopers.interfaces.api.v1.users
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 object UserRequestGenerator {
     fun Create(
@@ -12,22 +11,25 @@ object UserRequestGenerator {
         gender: String = generateGender(),
         email: String = generateEmail(),
         birth: String = generateBirth(),
-    ) = UserRequest.Create(username = username, name = name, gender = gender, email = email, birth = birth)
+    ) = UserRequest.Create(
+        username = username,
+        name = name,
+        gender = gender,
+        email = email,
+        birth = birth,
+    )
 
     private fun generateEmail(): String = "${UUID.randomUUID()}@example.com"
     private fun generateGender(): String = if (Random.nextBoolean()) "F" else "M"
     private fun generateName(): String = UUID.randomUUID()
         .toString()
-        .slice(2..8)
-    private fun generateUsername(): String = UUID.randomUUID().toString()
-    private fun generateBirth(): String = LocalDate.ofEpochDay(
-        Random.nextLong(
-            LocalDate.of(1990, 1, 1)
-                .toEpochDay(),
-            LocalDate.now()
-                .minusYears(14)
-                .toEpochDay(),
-        ),
-    )
-        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+        .slice(0..2)
+
+    private fun generateUsername(): String = UUID.randomUUID()
+        .toString()
+        .slice(0..7)
+
+    private fun generateBirth(): String = "${
+        Random.nextInt(1990..2020)
+    }-${"%02d".format(Random.nextInt(1..12))}-${"%02d".format(Random.nextInt(1..27))}"
 }
