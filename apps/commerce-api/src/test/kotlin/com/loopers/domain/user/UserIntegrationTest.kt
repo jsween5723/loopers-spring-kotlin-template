@@ -8,7 +8,6 @@ import io.mockk.verify
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.dao.DataIntegrityViolationException
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -35,9 +34,10 @@ class UserIntegrationTest(
         fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`() {
             // arrange
             val 가입된_사용자 = fixture.회원가입()
+            val command = UserCommandGenerator.Create(username = 가입된_사용자.username)
             // act
             // assert
-            assertThrows<DataIntegrityViolationException> { fixture.userService.create(UserCommandGenerator.Create(username = 가입된_사용자.username)) }
+            assertThrows<IllegalStateException> { fixture.userService.create(command) }
         }
     }
 

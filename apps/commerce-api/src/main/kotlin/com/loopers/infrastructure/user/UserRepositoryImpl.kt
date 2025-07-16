@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository
 class UserRepositoryImpl(private val jpaRepository: UserJpaRepository) : UserRepository {
     override fun save(user: User): User = jpaRepository.save(user)
     override fun findBy(userId: Long): User? = jpaRepository.findByIdOrNull(userId)
+    override fun existsBy(username: String): Boolean = jpaRepository.existsByUsername(username)
 }
 
-interface UserJpaRepository : JpaRepository<User, Long>
+interface UserJpaRepository : JpaRepository<User, Long> {
+    fun existsByUsername(username: String): Boolean
+}
