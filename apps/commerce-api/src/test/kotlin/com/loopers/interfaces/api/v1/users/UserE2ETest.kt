@@ -9,18 +9,17 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
 
-class UserE2ETest : AbstractApiTest() {
+class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
 
     @Nested
     inner class `POST api_v1_users_me` {
         @Test
-        fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`() {
             // arrange
             val create = UserRequestGenerator.Create()
             // act
@@ -39,7 +38,7 @@ class UserE2ETest : AbstractApiTest() {
         }
 
         @Test
-        fun `회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `회원 가입 시에 성별이 없을 경우, 400 Bad Request 응답을 반환한다`() {
             // arrange
             val create = UserRequestGenerator.Create(gender = "")
             // act
@@ -55,7 +54,7 @@ class UserE2ETest : AbstractApiTest() {
     @Nested
     inner class `GET api_v1_users_me` {
         @Test
-        fun `내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `내 정보 조회에 성공할 경우, 해당하는 유저 정보를 응답으로 반환한다`() {
             // arrange
             val 사용자 = fixture.회원가입()
             fixture.사용자_지정(사용자.id)
@@ -78,7 +77,7 @@ class UserE2ETest : AbstractApiTest() {
         }
 
         @Test
-        fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`() {
             // arrange
             fixture.사용자_지정(UNAVAILABLE_USER_ID)
             // act

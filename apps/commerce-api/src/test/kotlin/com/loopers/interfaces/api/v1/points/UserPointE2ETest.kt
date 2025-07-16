@@ -8,7 +8,6 @@ import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.patchForObject
 import org.springframework.http.HttpEntity
@@ -17,12 +16,12 @@ import org.springframework.http.ProblemDetail
 import kotlin.test.assertEquals
 
 @ApiTest
-class UserPointE2ETest : AbstractApiTest() {
+class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
     @Nested
     inner class `GET api_v1_points` {
 
         @Test
-        fun `조회 시 X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `조회 시 X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`() {
             // arrange
             // act
             val result = fixture.testRestTemplate.exchange<ProblemDetail>(
@@ -35,7 +34,7 @@ class UserPointE2ETest : AbstractApiTest() {
         }
 
         @Test
-        fun `포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `포인트 조회에 성공할 경우, 보유 포인트를 응답으로 반환한다`() {
             // arrange
             fixture.기본_사용자_지정()
             val 기존_포인트 = fixture.포인트_충전()
@@ -57,7 +56,7 @@ class UserPointE2ETest : AbstractApiTest() {
     @Nested
     inner class `POST api_v1_points_charge` {
         @Test
-        fun `존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다`() {
             // arrange
             fixture.기본_사용자_지정()
             val request = UserPointRequestGenerator.Charge(amount = 1000.toBigDecimal())
@@ -75,7 +74,7 @@ class UserPointE2ETest : AbstractApiTest() {
         }
 
         @Test
-        fun `존재하지 않는 유저로 충전할 경우, 404 Not Found 응답을 반환한다`(@Autowired fixture: ApiTestFixture) {
+        fun `존재하지 않는 유저로 충전할 경우, 404 Not Found 응답을 반환한다`() {
             // arrange
             fixture.사용자_지정(UNAVAILABLE_USER_ID)
             val request = UserPointRequestGenerator.Charge()

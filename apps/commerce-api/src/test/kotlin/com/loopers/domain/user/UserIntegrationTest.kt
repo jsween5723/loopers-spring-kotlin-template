@@ -8,20 +8,20 @@ import io.mockk.verify
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class UserIntegrationTest : AbstractIntegrationTest() {
-    @SpykBean
-    private lateinit var repository: UserRepository
+class UserIntegrationTest(
+    @SpykBean private val repository: UserRepository,
+    private val fixture: IntegrationTestFixture,
+) : AbstractIntegrationTest() {
 
     @Nested
     inner class `사용자 생성` {
         @Test
-        fun `회원 가입시 User 저장이 수행된다`(@Autowired fixture: IntegrationTestFixture) {
+        fun `회원 가입시 User 저장이 수행된다`() {
             // arrange
             val command = UserCommandGenerator.Create()
             // act
@@ -32,7 +32,7 @@ class UserIntegrationTest : AbstractIntegrationTest() {
         }
 
         @Test
-        fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`(@Autowired fixture: IntegrationTestFixture) {
+        fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`() {
             // arrange
             val 가입된_사용자 = fixture.회원가입()
             // act
@@ -44,7 +44,7 @@ class UserIntegrationTest : AbstractIntegrationTest() {
     @Nested
     inner class `내 정보 조회` {
         @Test
-        fun `해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다`(@Autowired fixture: IntegrationTestFixture) {
+        fun `해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다`() {
             // arrange
             val existUser = fixture.회원가입()
             // act
@@ -60,7 +60,7 @@ class UserIntegrationTest : AbstractIntegrationTest() {
         }
 
         @Test
-        fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`(@Autowired fixture: IntegrationTestFixture) {
+        fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`() {
             // arrange
             // act
             val result = fixture.userService.read(NO_EXIST_USER_ID)
