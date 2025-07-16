@@ -5,6 +5,7 @@ import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -12,6 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
+@DisplayName("사용자 통합테스트")
 class UserIntegrationTest(
     @SpykBean private val repository: UserRepository,
     private val fixture: IntegrationTestFixture,

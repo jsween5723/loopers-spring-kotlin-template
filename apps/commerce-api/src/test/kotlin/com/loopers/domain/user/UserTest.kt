@@ -5,6 +5,7 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
+@DisplayName("사용자 단위 테스트")
 class UserTest {
 
     @ParameterizedTest

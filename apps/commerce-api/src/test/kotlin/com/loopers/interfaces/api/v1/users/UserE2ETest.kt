@@ -7,6 +7,7 @@ import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.web.client.exchange
@@ -15,6 +16,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
 
+@DisplayName("사용자 E2E 테스트")
 class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
 
     @Nested

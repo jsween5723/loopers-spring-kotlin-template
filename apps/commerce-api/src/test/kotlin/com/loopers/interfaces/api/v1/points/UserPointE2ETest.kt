@@ -1,11 +1,11 @@
 package com.loopers.interfaces.api.v1.points
 
 import com.loopers.interfaces.api.AbstractApiTest
-import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_MY_POINT_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.web.client.exchange
@@ -15,7 +15,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
 import kotlin.test.assertEquals
 
-@ApiTest
+@DisplayName("포인트 E2E 테스트")
 class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
     @Nested
     inner class `GET api_v1_points` {

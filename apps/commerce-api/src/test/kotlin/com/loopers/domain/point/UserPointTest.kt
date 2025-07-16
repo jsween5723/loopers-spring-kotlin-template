@@ -1,9 +1,11 @@
 package com.loopers.domain.point
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
+@DisplayName("포인트 단위테스트")
 class UserPointTest {
     private lateinit var userPoint: UserPoint
     private val wrongChargeAmount = (-1L).toBigDecimal()

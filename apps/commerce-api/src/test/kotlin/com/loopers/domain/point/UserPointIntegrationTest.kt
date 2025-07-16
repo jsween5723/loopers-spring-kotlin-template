@@ -4,12 +4,14 @@ import com.loopers.application.point.UserPointFacade
 import com.loopers.domain.AbstractIntegrationTest
 import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
+@DisplayName("포인트 통합테스트")
 class UserPointIntegrationTest(
     private val userPointFacade: UserPointFacade,
     private val fixture: IntegrationTestFixture,
