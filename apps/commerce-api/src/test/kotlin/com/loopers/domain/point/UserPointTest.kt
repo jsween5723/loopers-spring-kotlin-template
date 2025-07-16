@@ -17,6 +17,7 @@ class UserPointTest {
     fun `0 이하의 정수로 포인트를 충전 시 실패한다`() {
         // arrange
         // act
+        // assert
         assertThrows<IllegalArgumentException> { userPoint.charge(wrongChargeAmount) }
     }
 }
