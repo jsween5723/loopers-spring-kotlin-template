@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
@@ -59,11 +60,10 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
             val 사용자 = fixture.회원가입()
             fixture.사용자_지정(사용자.id)
             // act
-            val result = fixture.testRestTemplate.exchange(
+            val result = fixture.testRestTemplate.exchange<UserResponse.GetMe>(
                 USER_GET_ME_URI,
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
-                UserResponse.GetMe::class.java,
             )
             // assert
             assertEquals(200, result.statusCode.value())
@@ -81,11 +81,10 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
             // arrange
             fixture.사용자_지정(UNAVAILABLE_USER_ID)
             // act
-            val result = fixture.testRestTemplate.exchange(
+            val result = fixture.testRestTemplate.exchange<ProblemDetail>(
                 USER_GET_ME_URI,
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
-                ProblemDetail::class.java,
             )
             // assert
             assertEquals(404, result.statusCode.value())

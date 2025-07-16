@@ -30,7 +30,7 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(400, requireNotNull(result.body?.status))
+            assertEquals(400, requireNotNull(result.statusCode.value()))
         }
 
         @Test
