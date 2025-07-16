@@ -1,6 +1,6 @@
 package com.loopers.domain.user
 
-import com.loopers.domain.IntegrationTest
+import com.loopers.domain.AbstractIntegrationTest
 import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
@@ -13,8 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-@IntegrationTest
-class UserIntegrationTest {
+class UserIntegrationTest : AbstractIntegrationTest() {
     @SpykBean
     private lateinit var repository: UserRepository
 

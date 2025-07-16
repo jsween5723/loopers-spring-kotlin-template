@@ -1,5 +1,6 @@
 package com.loopers.interfaces.api.v1.points
 
+import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_MY_POINT_URI
@@ -15,7 +16,7 @@ import org.springframework.http.ProblemDetail
 import kotlin.test.assertEquals
 
 @ApiTest
-class UserPointE2ETest {
+class UserPointE2ETest : AbstractApiTest() {
     @Test
     fun `존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange

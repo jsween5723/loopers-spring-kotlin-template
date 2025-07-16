@@ -1,7 +1,7 @@
 package com.loopers.domain.point
 
 import com.loopers.application.point.UserPointFacade
-import com.loopers.domain.IntegrationTest
+import com.loopers.domain.AbstractIntegrationTest
 import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import org.junit.jupiter.api.Test
@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-@IntegrationTest
-class UserPointIntegrationTest {
+class UserPointIntegrationTest : AbstractIntegrationTest() {
     @Autowired
     private lateinit var userPointFacade: UserPointFacade
 

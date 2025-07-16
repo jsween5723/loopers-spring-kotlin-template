@@ -1,6 +1,6 @@
 package com.loopers.interfaces.api.v1.users
 
-import com.loopers.interfaces.api.v1.ApiTest
+import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_CREATE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
@@ -14,8 +14,7 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
 
-@ApiTest
-class UserE2ETest {
+class UserE2ETest : AbstractApiTest() {
     @Test
     fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`(@Autowired fixture: ApiTestFixture) {
         // arrange
