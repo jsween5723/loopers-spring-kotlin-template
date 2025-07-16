@@ -3,3 +3,13 @@ datasource:
     main:
       jdbc-url: jdbc:h2:mem:test
       username: sa
+
+junit:
+  jupiter:
+    execution:
+      parallel:
+        enabled: true
+        mode:
+          default: concurrent
+          classes:
+            default: concurrent
