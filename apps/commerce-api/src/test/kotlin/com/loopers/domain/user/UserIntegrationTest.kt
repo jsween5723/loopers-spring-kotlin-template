@@ -1,7 +1,8 @@
 package com.loopers.domain.user
 
 import com.loopers.domain.IntegrationTest
-import com.loopers.domain.user.UserIntegrationTestFixture.Companion.NO_EXIST_USER_ID
+import com.loopers.domain.IntegrationTestFixture
+import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ class UserIntegrationTest {
     private lateinit var repository: UserRepository
 
     @Test
-    fun `회원 가입시 User 저장이 수행된다`(@Autowired fixture: UserIntegrationTestFixture) {
+    fun `회원 가입시 User 저장이 수행된다`(@Autowired fixture: IntegrationTestFixture) {
         // arrange
         val command = UserCommandGenerator.Create()
         // act
@@ -29,7 +30,7 @@ class UserIntegrationTest {
     }
 
     @Test
-    fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`(@Autowired fixture: UserIntegrationTestFixture) {
+    fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`(@Autowired fixture: IntegrationTestFixture) {
         // arrange
         val 가입된_사용자 = fixture.회원가입()
         // act
@@ -38,7 +39,7 @@ class UserIntegrationTest {
     }
 
     @Test
-    fun `해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다`(@Autowired fixture: UserIntegrationTestFixture) {
+    fun `해당 ID 의 회원이 존재할 경우, 회원 정보가 반환된다`(@Autowired fixture: IntegrationTestFixture) {
         // arrange
         val existUser = fixture.회원가입()
         // act
@@ -54,7 +55,7 @@ class UserIntegrationTest {
     }
 
     @Test
-    fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`(@Autowired fixture: UserIntegrationTestFixture) {
+    fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`(@Autowired fixture: IntegrationTestFixture) {
         // arrange
         // act
         val result = fixture.userService.read(NO_EXIST_USER_ID)

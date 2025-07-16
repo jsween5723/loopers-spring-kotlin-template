@@ -3,8 +3,6 @@ package com.loopers.interfaces.api
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.loopers.support.error.CoreException
-import com.loopers.support.error.ErrorType
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.http.HttpStatus
@@ -26,17 +24,11 @@ import kotlin.text.toRegex
 class ApiControllerAdvice {
     private val log = LoggerFactory.getLogger(ApiControllerAdvice::class.java)
 
-    @ExceptionHandler
-    fun handle(e: CoreException): ProblemDetail {
-        log.warn("CoreException : {}", e.customMessage ?: e.message, e)
-        return failureResponse(errorType = e.errorType, errorMessage = e.customMessage)
-    }
-
     @ExceptionHandler(DataIntegrityViolationException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
     fun handle(e: DataIntegrityViolationException): ProblemDetail {
         log.warn("ConstraintViolationException : {}", e.localizedMessage)
-        return failureResponse(errorType = ErrorType.CONFLICT, errorMessage = e.localizedMessage)
+        return failureResponse(errorType = HttpStatus.CONFLICT, errorMessage = e.localizedMessage)
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
@@ -46,14 +38,21 @@ class ApiControllerAdvice {
         val type = e.requiredType?.simpleName ?: "unknown"
         val value = e.value ?: "null"
         val message = "요청 파라미터 '$name' (타입: $type)의 값 '$value'이(가) 잘못되었습니다."
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = message)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = message)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleBadRequest(e: MethodArgumentNotValidException): ProblemDetail {
         log.warn(e.stackTraceToString())
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = e.localizedMessage)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = e.localizedMessage)
+    }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleBadRequest(e: IllegalArgumentException): ProblemDetail {
+        log.warn(e.stackTraceToString())
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = e.localizedMessage)
     }
 
     @ExceptionHandler(MissingServletRequestParameterException::class)
@@ -62,7 +61,7 @@ class ApiControllerAdvice {
         val name = e.parameterName
         val type = e.parameterType
         val message = "필수 요청 파라미터 '$name' (타입: $type)가 누락되었습니다."
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = message)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = message)
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -101,7 +100,7 @@ class ApiControllerAdvice {
             else -> "요청 본문을 처리하는 중 오류가 발생했습니다. JSON 메세지 규격을 확인해주세요."
         }
 
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = errorMessage)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = errorMessage)
     }
 
     @ExceptionHandler(ServerWebInputException::class)
@@ -114,9 +113,9 @@ class ApiControllerAdvice {
 
         val missingParams = extractMissingParameter(e.reason ?: "")
         return if (missingParams.isNotEmpty()) {
-            failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = "필수 요청 값 \'$missingParams\'가 누락되었습니다.")
+            failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = "필수 요청 값 \'$missingParams\'가 누락되었습니다.")
         } else {
-            failureResponse(errorType = ErrorType.BAD_REQUEST)
+            failureResponse(errorType = HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -125,7 +124,7 @@ class ApiControllerAdvice {
     fun handleNotFound(
         e: NoSuchElementException,
     ): ProblemDetail = failureResponse(
-        errorType = ErrorType.NOT_FOUND,
+        errorType = HttpStatus.NOT_FOUND,
         errorMessage = e.localizedMessage,
     ).also {
         log.warn("No such element: ${e.localizedMessage}")
@@ -135,12 +134,12 @@ class ApiControllerAdvice {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     fun handle(e: Throwable): ProblemDetail {
         log.error("Exception : {}", e.message, e)
-        val errorType = ErrorType.INTERNAL_ERROR
+        val errorType = HttpStatus.INTERNAL_SERVER_ERROR
         return failureResponse(errorType = errorType)
     }
 
-    private fun failureResponse(errorType: ErrorType, errorMessage: String? = null): ProblemDetail =
-        ProblemDetail.forStatus(errorType.status).apply {
+    private fun failureResponse(errorType: HttpStatus, errorMessage: String? = null): ProblemDetail =
+        ProblemDetail.forStatus(errorType).apply {
             detail = errorMessage
         }
 }
