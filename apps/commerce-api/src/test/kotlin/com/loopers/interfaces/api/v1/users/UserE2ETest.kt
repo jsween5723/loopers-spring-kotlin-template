@@ -17,7 +17,7 @@ import org.springframework.http.ProblemDetail
 class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
 
     @Nested
-    inner class `POST api_v1_users_me` {
+    inner class `POST api_v1_users` {
         @Test
         fun `회원 가입이 성공할 경우, 생성된 유저 정보를 응답으로 반환한다`() {
             // arrange

@@ -8,7 +8,6 @@ import com.loopers.interfaces.api.v1.users.UserRequestGenerator
 import com.loopers.interfaces.api.v1.users.UserResponse
 import org.springframework.boot.test.web.client.LocalHostUriTemplateHandler
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.boot.test.web.client.patchForObject
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.env.Environment
@@ -41,10 +40,10 @@ class ApiTestFixture(environment: Environment) {
     }
 
     fun 포인트_충전(request: UserPointRequest.Charge = UserPointRequestGenerator.Charge()): UserPointResponse.Charge? =
-        testRestTemplate.patchForObject<UserPointResponse.Charge>(
+        testRestTemplate.postForEntity<UserPointResponse.Charge>(
             POINT_CHARGE_URI,
             request,
-        )
+        ).body
 
     companion object {
         const val USER_CREATE_URI = "/api/v1/users"

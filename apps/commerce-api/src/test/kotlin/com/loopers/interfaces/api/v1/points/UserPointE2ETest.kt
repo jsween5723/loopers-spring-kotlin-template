@@ -9,7 +9,7 @@ import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_I
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.web.client.exchange
-import org.springframework.boot.test.web.client.patchForObject
+import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.ProblemDetail
@@ -61,7 +61,7 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
             fixture.기본_사용자_지정()
             val request = UserPointRequestGenerator.Charge(amount = 1000.toBigDecimal())
             // act
-            val result = fixture.testRestTemplate.patchForObject<UserPointResponse.Charge>(
+            val result = fixture.testRestTemplate.postForEntity<UserPointResponse.Charge>(
                 POINT_CHARGE_URI,
                 request,
             )
@@ -69,7 +69,7 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
             assertEquals(
                 0,
                 1000.toBigDecimal()
-                    .compareTo(requireNotNull(result?.point)),
+                    .compareTo(requireNotNull(result.body?.point)),
             )
         }
 
@@ -80,9 +80,9 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
             val request = UserPointRequestGenerator.Charge()
             // act
             val result =
-                fixture.testRestTemplate.patchForObject<ProblemDetail>(POINT_CHARGE_URI, request)
+                fixture.testRestTemplate.postForEntity<ProblemDetail>(POINT_CHARGE_URI, request)
             // assert
-            assertEquals(404, requireNotNull(result?.status))
+            assertEquals(404, requireNotNull(result.statusCode.value()))
         }
     }
 }
