@@ -4,7 +4,7 @@ import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_CREATE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
@@ -81,7 +81,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
         @Test
         fun `존재하지 않는 ID 로 조회할 경우, 404 Not Found 응답을 반환한다`() {
             // arrange
-            fixture.사용자_지정(UNAVAILABLE_USER_ID)
+            fixture.사용자_지정(NOT_EXIST_USER_ID)
             // act
             val result = fixture.testRestTemplate.exchange<ProblemDetail>(
                 USER_GET_ME_URI,

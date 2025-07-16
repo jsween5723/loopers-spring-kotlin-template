@@ -4,7 +4,7 @@ import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_MY_POINT_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.UNAVAILABLE_USER_ID
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -76,7 +76,7 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
         @Test
         fun `존재하지 않는 유저로 충전할 경우, 404 Not Found 응답을 반환한다`() {
             // arrange
-            fixture.사용자_지정(UNAVAILABLE_USER_ID)
+            fixture.사용자_지정(NOT_EXIST_USER_ID)
             val request = UserPointRequestGenerator.Charge()
             // act
             val result =
