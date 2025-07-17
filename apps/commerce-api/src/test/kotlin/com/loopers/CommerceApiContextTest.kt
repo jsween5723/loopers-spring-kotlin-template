@@ -1,9 +1,11 @@
 package com.loopers
 
+import com.loopers.domain.IntegrationTest
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.boot.test.context.SpringBootTest
 
-@SpringBootTest
+@IntegrationTest
+@DisplayName("컨텍스트 로딩 테스트")
 class CommerceApiContextTest {
     @Test
     fun contextLoads() {
