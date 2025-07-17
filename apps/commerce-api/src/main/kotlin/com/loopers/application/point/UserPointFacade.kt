@@ -15,7 +15,7 @@ class UserPointFacade(private val userPointService: UserPointService, private va
         return userPointService.charge(command)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getMe(userId: Long): UserPoint? {
         userService.read(userId) ?: return null
         return userPointService.read(userId)
