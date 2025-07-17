@@ -12,10 +12,12 @@ import com.loopers.domain.user.UserCommandGenerator
 class IntegrationTestFixture(val userService: UserService, val userPointService: UserPointService) {
     private var userId: Long = NO_EXIST_USER_ID
 
-    fun 회원가입(command: UserCommand.Create = UserCommandGenerator.Create()): User = userService.create(command)
+    fun 회원가입(command: UserCommand.Create = UserCommandGenerator.Create()): User =
+        userService.create(command)
+
     fun 기본_사용자_등록(): User = 회원가입().also {
-            userId = it.id
-        }
+        userId = it.id
+    }
 
     fun 충전하기(
         command: UserPointCommand.Charge = UserPointCommandGenerator.Charge(
