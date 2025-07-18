@@ -1,0 +1,15 @@
+datasource:
+  mysql-jpa:
+    main:
+      jdbc-url: jdbc:h2:mem:test;MODE=MySQL
+      username: sa
+
+junit:
+  jupiter:
+    execution:
+      parallel:
+        enabled: true
+        mode:
+          default: concurrent
+          classes:
+            default: concurrent
