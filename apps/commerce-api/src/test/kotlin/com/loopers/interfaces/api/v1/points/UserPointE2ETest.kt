@@ -8,6 +8,7 @@ import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
@@ -51,12 +52,28 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 requireNotNull(result.body?.point).compareTo(requireNotNull(기존_포인트?.point)),
             )
         }
+
+        @Test
+        fun `포인트 조회시 유효한 사용자 ID가 아닐경우, 404 Not Found를 반환한다`() {
+            // arrange
+            fixture.사용자_지정(NOT_EXIST_USER_ID)
+            // act
+            val result = fixture.testRestTemplate.exchange<ProblemDetail>(
+                GET_MY_POINT_URI,
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+            )
+            // assert
+            assertEquals(404, requireNotNull(result.statusCode.value()))
+        }
     }
 
     @Nested
     inner class `POST api_v1_points_charge` {
         @Test
-        fun `존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다`() {
+        fun `존재하는 유저가 1000원을 충전할 경우, 충전된 보유 총량을 응답으로 반환한다`(
+            @Autowired fixture: ApiTestFixture,
+        ) {
             // arrange
             fixture.기본_사용자_지정()
             val request = UserPointRequestGenerator.Charge(amount = 1000.toBigDecimal())

@@ -2,7 +2,7 @@ package com.loopers.interfaces.api.v1.users
 
 import com.loopers.domain.user.User
 
-object UserResponse {
+class UserResponse private constructor() {
     data class Create(
         val id: Long,
         val name: String,
