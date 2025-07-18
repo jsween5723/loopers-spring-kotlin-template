@@ -3,7 +3,7 @@ package com.loopers.interfaces.api.v1.users
 import com.loopers.domain.user.UserCommand
 import jakarta.validation.constraints.NotBlank
 
-object UserRequest {
+class UserRequest private constructor() {
     data class Create(
         @field:NotBlank
         val username: String,

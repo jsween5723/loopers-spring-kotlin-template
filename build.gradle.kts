@@ -15,6 +15,7 @@ plugins {
     kotlin("plugin.spring") apply false
     id("org.springframework.boot") apply false
     id("io.spring.dependency-management")
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
     id("org.jlleitschuh.gradle.ktlint") apply false
 }
 
