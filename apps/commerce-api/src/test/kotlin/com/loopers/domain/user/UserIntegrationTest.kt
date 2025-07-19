@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 @DisplayName("사용자 통합테스트")
@@ -29,7 +28,10 @@ class UserIntegrationTest(
             val user = fixture.userService.create(command)
             // assert
             verify { repository.save(any()) }
-            assertNotNull(user.id)
+            assertThat(user.id).isNotEqualTo(0)
+            assertThat(user).usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt", "id", "deletedAt")
+                .isEqualTo(command)
         }
 
         @Test
