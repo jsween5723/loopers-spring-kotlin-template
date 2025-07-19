@@ -5,11 +5,11 @@ import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -52,13 +52,9 @@ class UserIntegrationTest(
             // act
             val result = fixture.userService.read(existUser.id)
             // assert
-            assertNotNull(result)
-            assertEquals(existUser.name, result.name)
-            assertEquals(existUser.username, result.username)
-            assertEquals(existUser.id, result.id)
-            assertEquals(existUser.gender, result.gender)
-            assertEquals(existUser.email, result.email)
-            assertEquals(existUser.birth, result.birth)
+            assertThat(requireNotNull(result)).usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
+                .isEqualTo(existUser)
         }
 
         @Test
