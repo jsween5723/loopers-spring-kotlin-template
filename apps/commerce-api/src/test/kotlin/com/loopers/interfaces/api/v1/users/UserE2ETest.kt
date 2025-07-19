@@ -5,8 +5,8 @@ import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_CREATE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -32,12 +32,9 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
             )
             // assert
             assertEquals(200, response.statusCode.value())
-            assertNotNull(response.body)
-            assertNotNull(response.body?.id)
-            assertEquals(create.name, requireNotNull(response.body?.name))
-            assertEquals(create.email, requireNotNull(response.body?.email))
-            assertEquals(create.gender, requireNotNull(response.body?.gender))
-            assertEquals(create.birth, requireNotNull(response.body?.birth))
+            assertThat(requireNotNull(response.body)).usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt", "id")
+                .isEqualTo(create)
         }
 
         @Test
@@ -68,14 +65,10 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(200, result.statusCode.value())
-            assertNotNull(result.body)
-            assertEquals(사용자.id, requireNotNull(result.body?.id))
-            assertEquals(사용자.name, requireNotNull(result.body?.name))
-            assertEquals(사용자.username, requireNotNull(result.body?.username))
-            assertEquals(사용자.email, requireNotNull(result.body?.email))
-            assertEquals(사용자.gender, requireNotNull(result.body?.gender))
-            assertEquals(사용자.birth, requireNotNull(result.body?.birth))
+            assertThat(result.statusCode.value()).isEqualTo(200)
+            assertThat(requireNotNull(result.body)).usingRecursiveComparison()
+                .ignoringFields("createdAt", "updatedAt")
+                .isEqualTo(사용자)
         }
 
         @Test
