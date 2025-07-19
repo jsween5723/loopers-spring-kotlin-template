@@ -2,11 +2,10 @@ package com.loopers.interfaces.api.v1.users
 
 import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_CREATE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.USER_GET_ME_URI
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -14,6 +13,7 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 
 @DisplayName("사용자 E2E 테스트")
@@ -31,7 +31,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
                 create,
             )
             // assert
-            assertEquals(200, response.statusCode.value())
+            assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(requireNotNull(response.body)).usingRecursiveComparison()
                 .ignoringFields("createdAt", "updatedAt", "id")
                 .isEqualTo(create)
@@ -47,7 +47,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
                 create,
             )
             // assert
-            assertEquals(400, response.statusCode.value())
+            assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
         }
     }
 
@@ -65,7 +65,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
                 HttpEntity.EMPTY,
             )
             // assert
-            assertThat(result.statusCode.value()).isEqualTo(200)
+            assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
             assertThat(requireNotNull(result.body)).usingRecursiveComparison()
                 .ignoringFields("createdAt", "updatedAt")
                 .isEqualTo(사용자)
@@ -82,7 +82,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(404, result.statusCode.value())
+            assertThat(result.statusCode.value()).isEqualTo(404)
         }
     }
 }

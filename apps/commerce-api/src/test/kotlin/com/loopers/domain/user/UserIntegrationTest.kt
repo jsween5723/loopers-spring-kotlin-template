@@ -6,10 +6,10 @@ import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
 import com.ninjasquad.springmockk.SpykBean
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNull
 
 @DisplayName("사용자 통합테스트")
@@ -35,13 +35,15 @@ class UserIntegrationTest(
         }
 
         @Test
-        fun `이미 가입된 ID 로 회원가입 시도 시, 실패한다`() {
+        fun `이미 가입된 ID 로 회원가입 시도 시, IllegalStateException가 발생한다`() {
             // arrange
             val 가입된_사용자 = fixture.회원가입()
             val command = UserCommandGenerator.Create(username = 가입된_사용자.username)
             // act
             // assert
-            assertThrows<IllegalStateException> { fixture.userService.create(command) }
+            assertThatThrownBy { fixture.userService.create(command) }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining(command.username)
         }
     }
 

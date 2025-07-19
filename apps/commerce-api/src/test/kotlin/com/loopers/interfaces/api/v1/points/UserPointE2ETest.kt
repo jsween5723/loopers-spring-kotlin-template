@@ -3,8 +3,9 @@ package com.loopers.interfaces.api.v1.points
 import com.loopers.interfaces.api.AbstractApiTest
 import com.loopers.interfaces.api.v1.ApiTestFixture
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.GET_MY_POINT_URI
-import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
 import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.NOT_EXIST_USER_ID
+import com.loopers.interfaces.api.v1.ApiTestFixture.Companion.POINT_CHARGE_URI
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -13,8 +14,8 @@ import org.springframework.boot.test.web.client.exchange
 import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
-import kotlin.test.assertEquals
 
 @DisplayName("포인트 E2E 테스트")
 class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
@@ -31,7 +32,8 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(400, requireNotNull(result.statusCode.value()))
+            assertThat(requireNotNull(result.statusCode))
+                .isEqualTo(HttpStatus.BAD_REQUEST)
         }
 
         @Test
@@ -46,11 +48,10 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(200, requireNotNull(result.statusCode.value()))
-            assertEquals(
-                0,
-                requireNotNull(result.body?.point).compareTo(requireNotNull(기존_포인트?.point)),
-            )
+            assertThat(requireNotNull(result.statusCode))
+                .isEqualTo(HttpStatus.OK)
+            assertThat(requireNotNull(result.body).point)
+                .isEqualByComparingTo(기존_포인트.point)
         }
 
         @Test
@@ -64,7 +65,8 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 HttpEntity.EMPTY,
             )
             // assert
-            assertEquals(404, requireNotNull(result.statusCode.value()))
+            assertThat(requireNotNull(result.statusCode))
+                .isEqualTo(HttpStatus.NOT_FOUND)
         }
     }
 
@@ -83,11 +85,8 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
                 request,
             )
             // assert
-            assertEquals(
-                0,
-                1000.toBigDecimal()
-                    .compareTo(requireNotNull(result.body?.point)),
-            )
+            assertThat(requireNotNull(result.body).point)
+                .isEqualByComparingTo(1000.toBigDecimal())
         }
 
         @Test
@@ -99,7 +98,8 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
             val result =
                 fixture.testRestTemplate.postForEntity<ProblemDetail>(POINT_CHARGE_URI, request)
             // assert
-            assertEquals(404, requireNotNull(result.statusCode.value()))
+            assertThat(result.statusCode)
+                .isEqualTo(HttpStatus.NOT_FOUND)
         }
     }
 }

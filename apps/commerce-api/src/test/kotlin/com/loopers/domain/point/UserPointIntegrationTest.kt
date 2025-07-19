@@ -4,11 +4,11 @@ import com.loopers.application.point.UserPointFacade
 import com.loopers.domain.AbstractIntegrationTest
 import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 @DisplayName("포인트 통합테스트")
@@ -38,11 +38,8 @@ class UserPointIntegrationTest(
             // act
             val myPoint = userPointFacade.getMe(userId = 사용자.id)
             // assert
-            assertEquals(
-                0,
-                충전된_포인트.point
-                    .compareTo(requireNotNull(myPoint?.point)),
-            )
+            assertThat(requireNotNull(myPoint).point)
+                .isEqualByComparingTo(충전된_포인트.point)
         }
 
         @Test

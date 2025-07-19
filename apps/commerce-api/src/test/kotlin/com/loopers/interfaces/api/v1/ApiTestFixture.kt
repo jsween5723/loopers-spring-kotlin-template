@@ -39,11 +39,11 @@ class ApiTestFixture(environment: Environment) {
         return response.body!!
     }
 
-    fun 포인트_충전(request: UserPointRequest.Charge = UserPointRequestGenerator.Charge()): UserPointResponse.Charge? =
+    fun 포인트_충전(request: UserPointRequest.Charge = UserPointRequestGenerator.Charge()): UserPointResponse.Charge =
         testRestTemplate.postForEntity<UserPointResponse.Charge>(
             POINT_CHARGE_URI,
             request,
-        ).body
+        ).body!!
 
     companion object {
         const val USER_CREATE_URI = "/api/v1/users"

@@ -1,7 +1,7 @@
 package com.loopers.domain.user
 
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
@@ -23,7 +23,8 @@ class UserTest {
         val command = UserCommandGenerator.Create(username = username)
         // act
         // assert
-        assertThrows<IllegalArgumentException> { command.toUser() }
+        assertThatThrownBy { command.toUser() }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(username)
     }
 
     @ParameterizedTest
@@ -43,7 +44,8 @@ class UserTest {
         val command = UserCommandGenerator.Create(email = email)
         // act
         // assert
-        assertThrows<IllegalArgumentException> { command.toUser() }
+        assertThatThrownBy { command.toUser() }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(email)
     }
 
     @ParameterizedTest
@@ -62,6 +64,7 @@ class UserTest {
         val command = UserCommandGenerator.Create(birth = birth)
         // act
         // assert
-        assertThrows<IllegalArgumentException> { command.toUser() }
+        assertThatThrownBy { command.toUser() }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining(birth)
     }
 }
