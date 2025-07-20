@@ -7,8 +7,7 @@
 1. 로그인 ID, 성별, 생일, 이메일 주소를 입력받고 저장합니다.
 
 ### 파라미터
-
-2. 성별, 생일, 이메일 주소, 로그인ID가 필요합니다.
+1. 성별, 생일, 이메일 주소, 로그인ID가 필요합니다.
 
 #### 파라미터 별 조건
 
@@ -40,4 +39,8 @@
 1. X-USER-ID 헤더가 필요합니다.
 
 ### 요구사항
-- [ ] ANONYMOUS일 경우 403 FORBIDDEN을 반환합니다.
+- [ ] ANONYMOUS일 경우 403 FORBIDDEN을 반환한다.
+    - [ ] ArgumentResolver에서 AccessControlException을 던진다.
+- [ ] 존재하지 않는 사용자일 경우 404 NOT FOUND를 반환한다.
+    - [ ] 도메인 레이어에서 사용자 검증 시 존재하지 않는다면 jakarta.persistence.EntityNotFoundException를 던진다.  
+- [ ] 성공할 경우 사용자 식별자가 포함된 사용자 정보를 반환한다.
