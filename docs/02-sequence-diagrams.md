@@ -261,31 +261,23 @@ sequenceDiagram
     participant UPCS as UserPointService
     participant PRCS as ProductService
     participant ES as ExternalService
-    C ->>+ PC: PATCH /api/v1/payments/:id  {method: "POINT"}
+    C ->>+ PC: POST /api/v1/order/:id/payments/point
     PC ->>+ PF: 지불하기
-    PF ->>+ PQS: 결제정보 조회
-    alt 결제 정보 없음 
-        PQS -->> PF: throw EntityNotFoundException
-    end
-    PQS -->>- PF: 결제정보
-    PF ->>+ OCS: 주문 금액 검증
-    alt 주문 정보 없음 
+    
+    PF ->>+ OCS: 주문정보 조회
+    alt 주문 정보 없음
         OCS -->> PF: throw EntityNotFoundException
     end
-    alt 금액 미일치 
-        OCS -->> PF: throw IllegalStateException
+    OCS -->>- PF: 주문정보
+    PF ->> PRCS: 재고 차감
+    alt 재고 부족
+        PRCS -->> PF: throw IllegalStateException
     end
-    OCS -->>- PF: 주문 정보
-    PF ->>+ UPCS: 포인트 차감
-    alt 포인트 부족 
-        UPCS -->> PF: throw IllegalStateException
+    
+    PF -->>+ PQS: 결제(주문정보)
+    alt 포인트 부족
+        PQS -->> PF: throw IllegalStateException
     end
-    UPCS -->>- PF: 포인트 증감 정보
-    PF ->>+ PRCS: 재고 차감
-    alt 재고 부족 
-        PRCS -->>- PF: throw IllegalStateException
-    end
-    PF ->>+ PQS: 결제정보 상태 변경 (완료)
     PQS -->>- PF: 결제정보
     PF ->>+ OCS: 주문 상태 변경 (결제 완료)
     OCS -->>- PF: 주문정보
