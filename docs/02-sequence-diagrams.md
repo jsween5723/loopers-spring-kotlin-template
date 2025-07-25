@@ -86,6 +86,28 @@ sequenceDiagram
     BC -->>- C: 브랜드 목록
 ```
 
+## 브랜드 상세 조회
+```mermaid
+sequenceDiagram
+    autonumber
+    participant C as 클라이언트
+    participant BC as BrandController
+    participant BF as BrandFacade
+    participant BQS as BrandService
+    participant PS as ProductService
+    C ->>+ BC: GET /api/v1/brands/:id
+    BC ->>+ BF: 브랜드 조회
+    BF ->>+ BQS: 브랜드 조회
+    alt 브랜드가 존재하지 않을 때 
+        BQS -->> BF: throw EntityNotFoundException
+    end
+    BQS -->>- BF: 브랜드 정보
+    BF ->>+ PS: brandId 상품 목록 조회
+    PS -->>- BF: 상품 목록
+    BF -->>- BC: 브랜드 + 상품 목록
+    BC -->>- C: 브랜드+ 상품 목록
+```
+
 ---
 # 상품
 ### 모든 사용자는 전체 상품 목록을 볼 수 있다.
