@@ -36,7 +36,7 @@ classDiagram
         -Long userId
         -BigDecimal point
         +charge(BigDecimal target) UserPointHistory
-        +substract(BigDecimal target) UserPointHistory
+        +pay(BigDecimal target) Payment
     }
     UserPoint ..> UserPointHistory
     
@@ -76,6 +76,7 @@ classDiagram
         -BigDecimal price
         -ProductStatus status
         -LocalDateTime createdAt
+        -List~ProductOption~ options
         -Set~ProductLike~ likes
         -List~ProductSKU~ skus
         +addLike(Authentication authentication) LikeHistory
@@ -83,7 +84,7 @@ classDiagram
         +getPrice() BigDecimal
     }
     Product --* ProductSKU
-    
+
     class ProductSKU {
         <<abstract>>
         -Long id
@@ -93,19 +94,19 @@ classDiagram
         -Long stockNumber
         -List~ProductSKUOptionValue~
         -LocalDateTime createdAt
-        +getPrice() BigDecimal
+        +getFullPrice() BigDecimal
         +increaseStock(Long quantity) LineItem
         +decreaseStock(Long quantity) LineItem
     }
 
     ProductSKU --* ProductSKUOptionValue
-    
+
     class ProductSKUOptionValue {
         -Long id
         -ProductSKU sku
         -ProductOptionValue optionValue
     }
-    
+
     class ProductOptionValue {
         -Long id
         -ProductOption option
@@ -114,7 +115,7 @@ classDiagram
         -String code
         +getFullCode() String
     }
-    ProductOptionValue *-- ProductOption
+    ProductOption --* ProductOptionValue
     class ProductOption {
         -Long id
         -Product product
@@ -125,8 +126,8 @@ classDiagram
     }
     Product ..> LikeHistory
     Product ..> Authentication
+    Product --* ProductOption
 
-    
     class LikeHistory {
         -Long id
         -Long userId
@@ -146,13 +147,13 @@ classDiagram
         Product
         Brand
     }
-    
+
     class LikeMethod {
         <<enumeration>>
         ADD
         REMOVE
     }
-    
+
     Product --* ProductLike
     Product --o ProductStatus
     class ProductLike {
@@ -175,7 +176,6 @@ classDiagram
         -LocalDateTime createdAt
         -List~OrderLine~ lines
         +getTotalPrice() BigDecimal
-        +pay(Authentication authentication, UserPoint point) OrderPayment
     }
     Order ..> Authentication
     Order ..> UserPoint
@@ -199,7 +199,11 @@ classDiagram
         -LocalDateTime createdAt
         +getPrice() BigDecimal
     }
-
+    class OrderPayment {
+        -Long id
+        -Order order
+        -Payment payment
+    }
 ```
     
 ```mermaid
@@ -208,16 +212,14 @@ classDiagram
         -Long id
         -Long userId
         -BigDecimal price
-    }
-
-    Payment o-- OrderPayment
-    OrderPayment --o PaymentMethod
-    class OrderPayment {
-        -Long id
-        -Long orderId
-        -Payment payment
         -PaymentMethod method
     }
+    class PaymentStatus {
+        <<enumeration>>
+        PENDING
+        COMPLETE
+    }
+    Payment o-- OrderPayment
     class PaymentMethod {
         <<enumeration>>
         POINT
