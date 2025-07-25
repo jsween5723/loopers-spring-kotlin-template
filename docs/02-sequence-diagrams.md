@@ -254,33 +254,45 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     participant C as 클라이언트
+
     participant PC as PaymentController
     participant PF as PaymentFacade
+    participant OR as OrderRepository
+    participant UPR as UserPointRepository
     participant PQS as PaymentService
-    participant OCS as OrderService
-    participant UPCS as UserPointService
+    participant PRR as ProductRepository
     participant PRCS as ProductService
+    participant PRR as ProductRepository
+    participant PR as PaymentRepository
     participant ES as ExternalService
     C ->>+ PC: POST /api/v1/order/:id/payments/point
     PC ->>+ PF: 지불하기
     
-    PF ->>+ OCS: 주문정보 조회
+    PF ->>+ OR: 주문정보 조회
     alt 주문 정보 없음
-        OCS -->> PF: throw EntityNotFoundException
+        OR -->> PF: throw EntityNotFoundException
     end
-    OCS -->>- PF: 주문정보
-    PF ->> PRCS: 재고 차감
-    alt 재고 부족
-        PRCS -->> PF: throw IllegalStateException
-    end
+    OR -->>- PF: 주문정보
     
-    PF -->>+ PQS: 결제(주문정보)
+    PF ->>+ UPR: 유저 포인트 조회
+    alt 유저 포인트 없음 
+        UPR -->> PF: throw EntityNotFoundException
+    end
+    UPR -->>- PF: 유저 포인트
+    PF -->>+ PQS: 결제(주문정보, 사용자 포인트)
     alt 포인트 부족
         PQS -->> PF: throw IllegalStateException
     end
     PQS -->>- PF: 결제정보
-    PF ->>+ OCS: 주문 상태 변경 (결제 완료)
-    OCS -->>- PF: 주문정보
+    PF ->>+ PRR: SKU 목록 조회
+    PRR -->>- PF: SKU 목록
+    PF ->> PRCS: 재고 차감(주문 정보, SKU 목록)
+    alt 재고 부족
+        PRCS -->> PF: throw IllegalStateException
+    end
+    PF ->> PR: 결제 정보 저장
+    PF ->> OR: 주문정보 저장
+    PF ->> PRR: SKU 저장
     PF -) ES: 정보 전송
     PF -->>- PC: 결제 정보
     PC -->>- C: 결제 정보
