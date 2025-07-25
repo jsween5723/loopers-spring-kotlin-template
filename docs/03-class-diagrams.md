@@ -3,7 +3,7 @@ classDiagram
     class Authentication {
         -Long userId
         -Role role
-        +authorize(id)
+        +authorize(Role role)
         +isUser() bool
         +isAnonyMous() bool
     }
@@ -70,20 +70,59 @@ classDiagram
 classDiagram
     class Product {
         -Long id
-        -BrandInfo brand
+        -Brand brand
+        -String code
         -String name
         -BigDecimal price
         -ProductStatus status
         -LocalDateTime createdAt
         -Set~ProductLike~ likes
+        -List~ProductSKU~ skus
         +addLike(Authentication authentication) LikeHistory
         +removeLike(Authentication authentication) LikeHistory
+        +getPrice() BigDecimal
     }
-    class BrandInfo {
+    Product --* ProductSKU
+    
+    class ProductSKU {
+        <<abstract>>
         -Long id
+        -Product product
+        -String code
         -String name
+        -Long stockNumber
+        -List~ProductSKUOptionValue~
+        -LocalDateTime createdAt
+        +getPrice() BigDecimal
+        +increaseStock(Long quantity) LineItem
+        +decreaseStock(Long quantity) LineItem
     }
-    Product --o BrandInfo
+
+    ProductSKU --* ProductSKUOptionValue
+    
+    class ProductSKUOptionValue {
+        -Long id
+        -ProductSKU sku
+        -ProductOptionValue optionValue
+    }
+    
+    class ProductOptionValue {
+        -Long id
+        -ProductOption option
+        -BigDecimal additionalPrice
+        -String name
+        -String code
+        +getFullCode() String
+    }
+    ProductOptionValue *-- ProductOption
+    class ProductOption {
+        -Long id
+        -Product product
+        -Long position %% 순서
+        -String name
+        -String code
+        -List~ProductOptionValue~ values
+    }
     Product ..> LikeHistory
     Product ..> Authentication
 
@@ -153,8 +192,8 @@ classDiagram
 
 
     class LineItem {
-        -Long productId
-        -BrandInfo brand
+        -ProductSKU sku
+        -Long quantity
         -String name
         -BigDecimal price
         -LocalDateTime createdAt
