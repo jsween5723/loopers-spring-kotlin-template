@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import java.time.ZonedDateTime
 
 @Entity(name = "products")
 class Product(
@@ -15,20 +16,23 @@ class Product(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id", nullable = false)
     val brand: Brand,
-    var maxQuantity: Long,
+    val displayedAt: ZonedDateTime,
+    val maxQuantity: Long,
     var stock: Long,
 ) : BaseEntity() {
     @Enumerated(EnumType.STRING)
     private var state: State = State.AVAILABLE
 
     fun deduct(quantity: Long): LineItem {
-        check(state.isAvailable()) { "상품을 현재 판매할 수 없습니다." }
-        check(brand.isAvailable()) { "브랜드가 입점상태인 상품만 판매할 수 있습니다." }
+        check(isAvailable()) { "상품을 현재 판매할 수 없습니다." }
+        check(brand.isAvailable()) { "브랜드가 판매 가능한 상태가 아닙니다." }
         check(maxQuantity >= quantity) { "회당 최대 수량보다 많이 판매할 수 없습니다." }
         check(stock >= quantity) { "재고보다 많이 판매할 수 없습니다." }
         stock -= quantity
         return LineItem(product = this, quantity = quantity)
     }
+
+    private fun isAvailable(): Boolean = state.isAvailable() && displayedAt.isBefore(ZonedDateTime.now())
 
     enum class State {
         UNAVAILABLE,

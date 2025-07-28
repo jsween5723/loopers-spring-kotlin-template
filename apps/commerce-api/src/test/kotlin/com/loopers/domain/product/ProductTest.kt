@@ -6,11 +6,12 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.instancio.Instancio
 import org.instancio.Select.field
 import org.junit.jupiter.api.Test
+import java.time.ZonedDateTime
 
 class ProductTest {
 
     @Test
-    fun `상품은 상품 식별자, 상품명, 가격, 등록일, 옵션 목록으로 생성할 수 있다`() {
+    fun `상품은 상품 식별자, 상품명, 가격, 옵션 목록으로 생성할 수 있다`() {
         // arrange
         // act
         // arrange
@@ -87,6 +88,24 @@ class ProductTest {
             .set(field("state"), Product.State.AVAILABLE)
             .create()
         val quantity = 5L
+        // act
+        // assert
+        assertThatThrownBy {
+            product.deduct(quantity = quantity)
+        }.isInstanceOf(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `상품은 출고 시 전시 일자 이전이면 IllegalStateException이 발생한다`() {
+        // arrange
+        val product = Instancio.of(Product::class.java)
+            .set(field("maxQuantity"), 5L)
+            .set(field("stock"), 3L)
+            .set(field(Brand::class.java, "state"), Brand.State.OPENED)
+            .set(field("displayedAt"), ZonedDateTime.now().plusDays(2))
+            .set(field("state"), Product.State.AVAILABLE)
+            .create()
+        val quantity = 3L
         // act
         // assert
         assertThatThrownBy {
