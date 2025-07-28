@@ -24,7 +24,8 @@ class Product(
     fun deduct(quantity: Long): LineItem {
         check(state.isAvailable()) { "상품을 현재 판매할 수 없습니다." }
         check(brand.isAvailable()) { "브랜드가 입점상태인 상품만 판매할 수 있습니다." }
-        check(maxQuantity >= quantity) { "회당 최대 수량보다 많이 판매할 수 없습니다" }
+        check(maxQuantity >= quantity) { "회당 최대 수량보다 많이 판매할 수 없습니다." }
+        check(stock >= quantity) { "재고보다 많이 판매할 수 없습니다." }
         stock -= quantity
         return LineItem(product = this, quantity = quantity)
     }

@@ -78,9 +78,19 @@ class ProductTest {
     }
 
     @Test
-    fun `상품을 출고할 때 SKU의 수량을 초과하는 경우 IllegalStateException을 던진다`() {
+    fun `상품을 출고할 때 재고 수량을 초과하는 경우 IllegalStateException을 던진다`() {
         // arrange
+        val product = Instancio.of(Product::class.java)
+            .set(field("maxQuantity"), 5L)
+            .set(field("stock"), 3L)
+            .set(field(Brand::class.java, "state"), Brand.State.OPENED)
+            .set(field("state"), Product.State.AVAILABLE)
+            .create()
+        val quantity = 5L
         // act
         // assert
+        assertThatThrownBy {
+            product.deduct(quantity = quantity)
+        }.isInstanceOf(IllegalStateException::class.java)
     }
 }
