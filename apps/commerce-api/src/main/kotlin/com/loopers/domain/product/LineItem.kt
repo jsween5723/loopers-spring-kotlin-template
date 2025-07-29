@@ -13,7 +13,6 @@ data class LineItem(
     val product: Product,
     val quantity: Long,
     val productName: String,
-    val brandName: String,
     val brandId: Long,
     val price: BigDecimal,
 ) {
@@ -22,8 +21,7 @@ data class LineItem(
             product = product,
                 quantity = quantity,
                 productName = product.name,
-                brandName = product.brand.name,
-                brandId = product.brand.id,
+                brandId = product.brandId,
                 price = product.price,
         )
     }

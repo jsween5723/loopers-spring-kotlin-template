@@ -1,6 +1,5 @@
 package com.loopers.domain.product
 
-import com.loopers.domain.brand.Brand
 import com.loopers.domain.shared.ProductAndQuantity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -10,7 +9,7 @@ class ProductDeductTest {
     private val sut = ProductDeductService()
     private val maxQuantity: Long = 1367
     private val product = Product(
-        brand = Brand(name = "Nathaniel Keith"),
+        brandId = 1L,
         displayedAt = ZonedDateTime.now(),
         maxQuantity = maxQuantity,
         price = 1000.toBigDecimal(),

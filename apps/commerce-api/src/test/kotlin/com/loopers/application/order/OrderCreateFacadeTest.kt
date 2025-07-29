@@ -1,7 +1,6 @@
 package com.loopers.application.order
 
 import com.loopers.domain.IntegrationTest
-import com.loopers.domain.brand.Brand
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductRepository
 import com.loopers.domain.shared.ProductIdAndQuantity
@@ -19,7 +18,7 @@ class OrderCreateFacadeTest(
     fun `주문 생성에 성공한다`() {
         // arrange
         val userId = UserId(id = 1L)
-        val product = Product(name = "Benita Conrad", brand = Brand(name = "Javier Decker"), displayedAt = ZonedDateTime.now(), maxQuantity = 5910, price = 2000.toBigDecimal(), stock = 1584)
+        val product = Product(name = "Benita Conrad", brandId = 1L, displayedAt = ZonedDateTime.now(), maxQuantity = 5910, price = 2000.toBigDecimal(), stock = 1584)
         val saved = productRepository.saveAndFlush(product)
         val listOf = listOf(ProductIdAndQuantity(productId = saved.id, quantity = 5L))
         // act

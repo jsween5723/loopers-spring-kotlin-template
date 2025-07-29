@@ -1,7 +1,6 @@
 package com.loopers.application.product
 
 import com.loopers.domain.IntegrationTest
-import com.loopers.domain.brand.Brand
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductRepository
 import com.loopers.domain.productlike.ProductLike
@@ -23,7 +22,7 @@ class ProductLikeFacadeTest {
     @Autowired
     private lateinit var productRepository: ProductRepository
 
-    val product: Product = Product(name = "Jerry Paul", brand = Brand(name = "Tiffany Perkins"), displayedAt = ZonedDateTime.now(), maxQuantity = 7327, price = 2000.toBigDecimal(), stock = 2556)
+    val product: Product = Product(name = "Jerry Paul", brandId = 1L, displayedAt = ZonedDateTime.now(), maxQuantity = 7327, price = 2000.toBigDecimal(), stock = 2556)
     val userId: UserId = UserId(2L)
 
     @Test

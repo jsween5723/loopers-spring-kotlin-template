@@ -1,6 +1,5 @@
 package com.loopers.domain.product
 
-import com.loopers.domain.brand.Brand
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -15,7 +14,7 @@ class ProductSignalTest {
         sut = ProductSignal(
             product = Product(
                 name = "Clement Olson",
-                brand = Brand(name = "Dominique Whitley"),
+                brandId = 1L,
                 displayedAt = ZonedDateTime.now(),
                 maxQuantity = 9015,
                 price = 2000L.toBigDecimal(),

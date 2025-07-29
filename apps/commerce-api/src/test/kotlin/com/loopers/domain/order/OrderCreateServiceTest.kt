@@ -1,6 +1,5 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.brand.Brand
 import com.loopers.domain.product.LineItem
 import com.loopers.domain.product.Product
 import org.assertj.core.api.Assertions.assertThat
@@ -17,12 +16,11 @@ class OrderCreateServiceTest {
             LineItem(
                 quantity = 5953,
                 productName = "Josie Flynn",
-                brandName = "Nanette Summers",
                 brandId = 7258,
                 price = 2000.toBigDecimal(),
             product = Product(
                 name = "Tonia Bryant",
-                brand = Brand(name = "Anne McKay"),
+                brandId = 1L,
                 displayedAt = ZonedDateTime.now(),
                 maxQuantity = 4627,
                 price = 2000.toBigDecimal(),
