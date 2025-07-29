@@ -9,7 +9,4 @@ class OrderPayments(private val orderPayments: MutableList<OrderPayment> = mutab
         get() = payments.filter { it.type == Payment.Type.PAID }
             .sumOf { it.amount }
     val totalPrice get() = paidPrice
-    fun addPayment(payment: OrderPayment) {
-        orderPayments.add(payment)
-    }
 }
