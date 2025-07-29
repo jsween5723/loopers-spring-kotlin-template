@@ -29,10 +29,10 @@ class UserPoint(
     override val type: PaymentInstrument.Type
         get() = PaymentInstrument.Type.USER_POINT
 
-    override fun pay(target: BigDecimal): Paid {
-        use(target)
+    override fun pay(amount: BigDecimal, userId: UserId): Paid {
+        use(amount)
         return Payment.paid(
-            target = target,
+            target = amount,
             instrument = this,
             userId = userId,
         )
