@@ -9,7 +9,9 @@ import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.product.SortFor
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.data.domain.PageRequest
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -19,6 +21,12 @@ class ProductSearchRepositoryImplTest(
     private val productRepository: ProductRepository,
     private val productSignalRepository: ProductSignalRepository,
 ) {
+
+    @BeforeEach
+    fun beforeEach() {
+        productSignalRepository.deleteAllInBatch()
+        productRepository.deleteAllInBatch()
+    }
 
     @Test
     fun `브랜드 id로 필터링 할 수 있다`() {
@@ -52,7 +60,7 @@ class ProductSearchRepositoryImplTest(
         val two = insertProduct(createProduct(price = 2000.toBigDecimal()), 2L)
         val three = insertProduct(createProduct(price = 3000.toBigDecimal()), 1L)
         // act
-        val actual = sut.search(ProductQuery(sort = SortFor.LIKES_ASC))
+        val actual = sut.search(ProductQuery(sort = SortFor.LIKES_ASC, pageable = PageRequest.of(0, 3)))
         // assert
         assertThat(actual.map { it.product.id }).isEqualTo(listOf(three, two, one).map { it.id })
     }
