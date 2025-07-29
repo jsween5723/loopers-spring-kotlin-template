@@ -39,7 +39,7 @@ class OrderPayServiceTest {
     fun `주문은 결제수단을 통해 결제를 진행하고 결제 인스턴스를 반환한다`() {
         // arrange
         val order = Order()
-        order.updateLineItems(
+        order.changeTo(
             listOf(
                 Instancio.of(LineItem::class.java)
                     .set(field("price"), 2000.toBigDecimal())
@@ -66,7 +66,7 @@ class OrderPayServiceTest {
     fun `주문은 결제수단을 통해 결제를 진행시 남은 금액보다 많다면 IllegalStateException을 던진다`() {
         // arrange
         val order = Order()
-        order.updateLineItems(
+        order.changeTo(
             listOf(
                 Instancio.of(LineItem::class.java)
                     .set(field("price"), 2000.toBigDecimal())

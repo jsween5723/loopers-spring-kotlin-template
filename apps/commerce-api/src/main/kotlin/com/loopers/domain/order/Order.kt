@@ -28,8 +28,7 @@ class Order : BaseEntity() {
             )
         }
 
-    fun changeTo(targets: List<ProductAndQuantity>) {
-        val lineItems = targets.map { it.product.select(it.quantity) }
+    fun changeTo(lineItems: List<LineItem>) {
         val orderLines = lineItems.map { OrderLine(order = this, lineItem = it) }
         this.orderLines.changeTo(orderLines)
     }

@@ -12,7 +12,7 @@ class OrderTest {
         // arrange
         val order = Instancio.of(Order::class.java)
             .create()
-        order.updateLineItems(
+        order.changeTo(
             listOf(
                 Instancio.of(LineItem::class.java)
                     .set(field("price"), 2000.toBigDecimal())

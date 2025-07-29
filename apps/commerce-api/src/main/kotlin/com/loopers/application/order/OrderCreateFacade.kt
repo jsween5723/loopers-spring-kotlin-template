@@ -4,7 +4,6 @@ import com.loopers.domain.order.OrderCreateService
 import com.loopers.domain.order.OrderRepository
 import com.loopers.domain.product.LineItem
 import com.loopers.domain.product.ProductRepository
-import com.loopers.domain.product.ProductSelectService
 import com.loopers.domain.shared.ProductAndQuantity
 import com.loopers.domain.shared.ProductIdAndQuantity
 import com.loopers.domain.user.UserId
@@ -16,15 +15,12 @@ import java.time.ZonedDateTime
 @Component
 class OrderCreateFacade(private val orderRepository: OrderRepository, private val productRepository: ProductRepository) {
     private val orderCreateService = OrderCreateService()
-    private val productSelectService = ProductSelectService()
 
     @Transactional
     fun create(userId: UserId, selects: List<ProductIdAndQuantity>): Result {
         val products = productRepository.findByIdIn(selects.map { it.productId })
         val order = orderCreateService.create(ProductAndQuantity.of(products, selects))
-            .let {
-                orderRepository.save(it)
-            }
+            .let(orderRepository::save)
         return Result(
             id = order.id,
             lineItems = order.lineItems,

@@ -1,7 +1,7 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.product.LineItem
 import com.loopers.domain.product.Product
+import com.loopers.domain.shared.ProductAndQuantity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
@@ -13,20 +13,7 @@ class OrderCreateServiceTest {
     fun `주문을 생성할 수 있다`() {
         // arrange
         val request = listOf(
-            LineItem(
-                quantity = 5953,
-                productName = "Josie Flynn",
-                brandId = 7258,
-                price = 2000.toBigDecimal(),
-            product = Product(
-                name = "Tonia Bryant",
-                brandId = 1L,
-                displayedAt = ZonedDateTime.now(),
-                maxQuantity = 4627,
-                price = 2000.toBigDecimal(),
-                stock = 8332,
-            ),
-        ),
+            ProductAndQuantity(product = Product(name = "Marci Hutchinson", brandId = 2845, displayedAt = ZonedDateTime.now(), maxQuantity = 7824, price = 2000.toBigDecimal(), stock = 5242), quantity = 2L),
         )
         // act
         val actual = sut.create(request)
