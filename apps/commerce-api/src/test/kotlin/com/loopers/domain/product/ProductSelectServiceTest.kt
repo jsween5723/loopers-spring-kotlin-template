@@ -26,7 +26,7 @@ class ProductSelectServiceTest {
         val actual = sut.select(request)
         // assert
         assertThat(actual[0]).extracting("quantity")
-            .isEqualTo(listOf(maxQuantity))
+            .isEqualTo(maxQuantity)
         assertThat(actual[0].product.stock).isEqualTo(maxQuantity)
     }
 }

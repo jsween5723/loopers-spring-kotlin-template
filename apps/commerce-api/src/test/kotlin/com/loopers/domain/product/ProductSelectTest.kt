@@ -12,8 +12,7 @@ class ProductSelectTest {
     @Test
     fun `상품은 수량을 통해 선택하고 수량과 상품을 반환한다`() {
         // arrange
-        val product = Instancio.of(Product::class.java)
-            .create()
+        val product = createProduct()
         val quantity = 2L
         // act
         val actual = product.select(quantity)
@@ -108,4 +107,16 @@ class ProductSelectTest {
             product.select(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
+
+    fun createProduct(): Product = Instancio.of(Product::class.java)
+            .set(field("maxQuantity"), 5L)
+            .set(field("stock"), 3L)
+            .set(field(Brand::class.java, "state"), Brand.State.OPENED)
+            .set(
+                field("displayedAt"),
+                ZonedDateTime.now()
+                    .minusDays(2),
+            )
+            .set(field("state"), Product.State.AVAILABLE)
+            .create()
 }

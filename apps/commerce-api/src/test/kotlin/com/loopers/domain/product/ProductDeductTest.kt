@@ -26,7 +26,7 @@ class ProductDeductTest {
         val actual = sut.deduct(request)
         // assert
         assertThat(actual[0]).extracting("quantity")
-            .isEqualTo(listOf(maxQuantity))
+            .isEqualTo(maxQuantity)
         assertThat(actual[0].product.stock).isEqualTo(0)
     }
 }
