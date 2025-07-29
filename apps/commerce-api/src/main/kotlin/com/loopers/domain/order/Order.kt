@@ -14,9 +14,9 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.OrderColumn
 import java.math.BigDecimal
 
-@Entity
+@Entity(name = "orders")
 class Order : BaseEntity() {
-    private val orderLines = OrderLines()
+    val orderLines = OrderLines()
 
     val lineItems get() = orderLines.lineItems
     val totalPrice get() = orderLines.totalPrice
@@ -34,7 +34,7 @@ class Order : BaseEntity() {
 }
 
 @Embeddable
-private class OrderLines {
+class OrderLines {
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
     @OrderColumn(name = "position")
     val orderLines = mutableListOf<OrderLine>()
@@ -47,7 +47,7 @@ private class OrderLines {
 }
 
 @Entity
-private data class OrderLine(
+data class OrderLine(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     val order: Order,
