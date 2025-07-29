@@ -5,7 +5,9 @@ import com.loopers.domain.brand.BrandRepository
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductQuery
 import com.loopers.domain.product.ProductRepository
+import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.product.SortFor
+import com.loopers.domain.productlike.ProductLikeRepository
 import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -18,12 +20,16 @@ class ProductSearchTest(
     private val sut: ProductFacade,
     private val productRepository: ProductRepository,
     private val productLikeFacade: ProductLikeFacade,
+    private val productLikeRepository: ProductLikeRepository,
     private val brandRepository: BrandRepository,
+    private val productSignalRepository: ProductSignalRepository,
 ) {
     private val userId = UserId(2L)
 
     @BeforeEach
     fun prepare() {
+        productLikeRepository.deleteAllInBatch()
+        productSignalRepository.deleteAllInBatch()
         productRepository.deleteAllInBatch()
         brandRepository.deleteAllInBatch()
     }
@@ -61,14 +67,16 @@ class ProductSearchTest(
         // act
         val actual = sut.search(userId = userId, ProductQuery(sort = SortFor.LIKES_ASC))
         // assert
-        assertThat(actual.products.map { it.id }).isEqualTo(listOf(three, two, one).map { it.id })
+        assertThat(actual.products.map { it.likeCount }).isEqualTo(listOf(1L, 2L, 3L))
     }
 
-    private fun insertProduct(product: Product, likeCount: Int = 1): Product =
-        productRepository.save(product).also {
-            increaseLike(userId = userId, product = it, number = likeCount)
-        }
-    private fun increaseLike(userId: UserId, product: Product, number: Int) = repeat(number) { productLikeFacade.add(userId = userId, productId = product.id) }
+    private fun insertProduct(product: Product, likeCount: Int = 1): Product {
+        val saved = productRepository.save(product)
+        increaseLike(product = saved, number = likeCount)
+        return saved
+    }
+
+    private fun increaseLike(product: Product, number: Int) = IntRange(1, number).forEach { productLikeFacade.add(userId = UserId(it.toLong()), productId = product.id) }
 
     private fun createProduct(
         name: String = "Ismael Flowers",

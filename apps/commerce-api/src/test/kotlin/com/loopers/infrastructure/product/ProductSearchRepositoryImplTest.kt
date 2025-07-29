@@ -62,7 +62,7 @@ class ProductSearchRepositoryImplTest(
         // act
         val actual = sut.search(ProductQuery(sort = SortFor.LIKES_ASC, pageable = PageRequest.of(0, 3)))
         // assert
-        assertThat(actual.map { it.product.id }).isEqualTo(listOf(three, two, one).map { it.id })
+        assertThat(actual.map { it.likeCount }).isEqualTo(listOf(1, 2, 3))
     }
 
     private fun insertProduct(product: Product, likeCount: Long = 0L): Product = productRepository.save(product)
