@@ -8,7 +8,7 @@ import org.instancio.Select.field
 import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 
-class ProductTest {
+class ProductDeductTest {
 
     @Test
     fun `상품은 상품 식별자, 상품명, 가격, 옵션 목록으로 생성할 수 있다`() {
@@ -24,7 +24,7 @@ class ProductTest {
             .create()
         val quantity = 2L
         // act
-        val actual = product.select(quantity)
+        val actual = product.deduct(quantity)
         // assert
         val expected = LineItem.from(product, 2L)
         assertThat(actual).isEqualTo(expected)
@@ -40,7 +40,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.select(quantity = quantity)
+            product.deduct(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -57,7 +57,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.select(quantity = 2)
+            product.deduct(quantity = 2)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -74,7 +74,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.select(quantity = quantity)
+            product.deduct(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -91,7 +91,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.select(quantity = quantity)
+            product.deduct(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -109,7 +109,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.select(quantity = quantity)
+            product.deduct(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 }
