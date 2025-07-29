@@ -8,5 +8,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @Configuration
 @EnableTransactionManagement
 @EntityScan(basePackages = ["com.loopers"])
-@EnableJpaRepositories(basePackages = ["com.loopers.infrastructure"])
+@EnableJpaRepositories(basePackages = ["com.loopers"])
 class JpaConfig
