@@ -22,7 +22,7 @@ class OrderCreateFacade(private val orderRepository: OrderRepository, private va
     fun create(userId: UserId, selects: List<ProductIdAndQuantity>): Result {
         val products = productRepository.findByIdIn(selects.map { it.productId })
         val order = orderCreateService.create(ProductAndQuantity.of(products, selects))
-            .also {
+            .let {
                 orderRepository.save(it)
             }
         return Result(
