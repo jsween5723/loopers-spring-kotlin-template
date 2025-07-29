@@ -4,6 +4,7 @@ import com.loopers.application.user.UserService
 import com.loopers.domain.point.UserPoint
 import com.loopers.domain.point.UserPointCommand
 import com.loopers.domain.point.UserPointService
+import com.loopers.domain.user.UserId
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,7 +17,7 @@ class UserPointFacade(private val userPointService: UserPointService, private va
     }
 
     @Transactional(readOnly = true)
-    fun getMe(userId: Long): UserPoint? {
+    fun getMe(userId: UserId): UserPoint? {
         userService.read(userId) ?: return null
         return userPointService.read(userId)
     }

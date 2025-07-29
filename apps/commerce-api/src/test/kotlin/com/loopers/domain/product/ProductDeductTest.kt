@@ -24,7 +24,7 @@ class ProductTest {
             .create()
         val quantity = 2L
         // act
-        val actual = product.sale(quantity)
+        val actual = product.select(quantity)
         // assert
         val expected = LineItem.from(product, 2L)
         assertThat(actual).isEqualTo(expected)
@@ -40,7 +40,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.sale(quantity = quantity)
+            product.select(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -57,7 +57,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.sale(quantity = 2)
+            product.select(quantity = 2)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -74,7 +74,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.sale(quantity = quantity)
+            product.select(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -91,7 +91,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.sale(quantity = quantity)
+            product.select(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 
@@ -109,7 +109,7 @@ class ProductTest {
         // act
         // assert
         assertThatThrownBy {
-            product.sale(quantity = quantity)
+            product.select(quantity = quantity)
         }.isInstanceOf(IllegalStateException::class.java)
     }
 }
