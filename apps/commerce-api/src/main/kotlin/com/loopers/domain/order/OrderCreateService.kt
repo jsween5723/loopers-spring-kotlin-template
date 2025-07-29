@@ -1,11 +1,11 @@
 package com.loopers.domain.order
 
-import com.loopers.domain.product.LineItem
+import com.loopers.domain.shared.ProductAndQuantity
 
 class OrderCreateService {
-    fun create(lineItems: List<LineItem>): Order {
+    fun create(targets: List<ProductAndQuantity>): Order {
         val order = Order()
-        order.updateLineItems(lineItems)
+        order.changeTo(targets)
         return order
     }
 }

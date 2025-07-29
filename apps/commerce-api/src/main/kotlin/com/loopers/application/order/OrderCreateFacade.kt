@@ -3,8 +3,8 @@ package com.loopers.application.order
 import com.loopers.domain.order.OrderCreateService
 import com.loopers.domain.order.OrderRepository
 import com.loopers.domain.product.LineItem
-import com.loopers.domain.product.ProductSelectService
 import com.loopers.domain.product.ProductRepository
+import com.loopers.domain.product.ProductSelectService
 import com.loopers.domain.shared.ProductAndQuantity
 import com.loopers.domain.shared.ProductIdAndQuantity
 import com.loopers.domain.user.UserId
@@ -21,8 +21,10 @@ class OrderCreateFacade(private val orderRepository: OrderRepository, private va
     @Transactional
     fun create(userId: UserId, selects: List<ProductIdAndQuantity>): Result {
         val products = productRepository.findByIdIn(selects.map { it.productId })
-        val lineItems = productSelectService.select(ProductAndQuantity.of(products, selects))
-        val order = orderRepository.save(orderCreateService.create(lineItems))
+        val order = orderCreateService.create(ProductAndQuantity.of(products, selects))
+            .also {
+                orderRepository.save(it)
+            }
         return Result(
             id = order.id,
             lineItems = order.lineItems,

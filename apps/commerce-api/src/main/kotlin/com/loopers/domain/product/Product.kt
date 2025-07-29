@@ -17,7 +17,7 @@ class Product(
     var stock: Long,
 ) : BaseEntity() {
     @Enumerated(EnumType.STRING)
-    private var state: State = State.AVAILABLE
+    var state: State = State.AVAILABLE
 
     fun select(quantity: Long): LineItem {
         check(isAvailable()) { "상품을 현재 선택할 수 없습니다." }
