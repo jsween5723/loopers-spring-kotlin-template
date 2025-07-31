@@ -1,5 +1,6 @@
 package com.loopers.domain.product
 
+import com.loopers.domain.brand.Brand
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.instancio.Instancio
@@ -45,8 +46,18 @@ class ProductTest {
     @Test
     fun `상품을 출고할 때 브랜드가 입점 상태가 아닐 경우 IllegalStateException을 던진다`() {
         // arrange
+        val brand = Instancio.of(Brand::class.java)
+            .set(field("state"), Brand.State.CLOSED)
+            .create()
+        val product = Instancio.of(Product::class.java)
+            .set(field("state"), Product.State.AVAILABLE)
+            .set(field("brand"), brand)
+            .create()
         // act
         // assert
+        assertThatThrownBy {
+            product.deduct(quantity = 2)
+        }.isInstanceOf(IllegalStateException::class.java)
     }
 
     @Test
