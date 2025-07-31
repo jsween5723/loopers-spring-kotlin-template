@@ -1,7 +1,9 @@
 package com.loopers.domain.product
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.instancio.Instancio
+import org.instancio.Select.field
 import org.junit.jupiter.api.Test
 
 class ProductTest {
@@ -16,7 +18,8 @@ class ProductTest {
     @Test
     fun `상품은 수량을 통해 출고하고 수량과 상품을 반환한다`() {
         // arrange
-        val product = Instancio.of(Product::class.java).create()
+        val product = Instancio.of(Product::class.java)
+            .create()
         val quantity = 2L
         // act
         val actual = product.deduct(quantity)
@@ -28,8 +31,15 @@ class ProductTest {
     @Test
     fun `상품은 출고할 때 출고 가능 상태가 아닐 경우 IllegalStateException을 던진다`() {
         // arrange
+        val product = Instancio.of(Product::class.java)
+            .set(field("state"), Product.State.UNAVAILABLE)
+            .create()
+        val quantity = 2L
         // act
         // assert
+        assertThatThrownBy {
+            product.deduct(quantity = quantity)
+        }.isInstanceOf(IllegalStateException::class.java)
     }
 
     @Test
