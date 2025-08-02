@@ -19,6 +19,6 @@ class UserPointController(private val userPointFacade: UserPointFacade) {
 
     @GetMapping
     fun getMine(authentication: Authentication): UserPointResponse.GetMine = UserPointResponse.GetMine.fromUserPoint(
-        userPointFacade.getMe(authentication.id) ?: throw NoSuchElementException("포인트 정보가 존재하지 않습니다."),
+        userPointFacade.getMe(authentication.userId) ?: throw NoSuchElementException("포인트 정보가 존재하지 않습니다."),
     )
 }
