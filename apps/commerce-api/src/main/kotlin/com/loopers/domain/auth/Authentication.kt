@@ -1,3 +1,5 @@
 package com.loopers.domain.auth
 
-data class Authentication(val id: Long)
+import com.loopers.domain.user.UserId
+
+data class Authentication(val userId: UserId)

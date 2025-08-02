@@ -24,8 +24,8 @@ class UserController(private val userService: UserService) {
     fun getMe(
         authentication: Authentication,
     ): UserResponse.GetMe {
-        val user = userService.read(authentication.id)
-                ?: throw NoSuchElementException("${authentication.id} 식별자를 가진 사용자는 존재하지 않습니다.")
+        val user = userService.read(authentication.userId)
+                ?: throw NoSuchElementException("${authentication.userId} 식별자를 가진 사용자는 존재하지 않습니다.")
         return UserResponse.GetMe.fromUser(user)
     }
 }

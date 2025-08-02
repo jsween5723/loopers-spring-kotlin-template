@@ -4,6 +4,7 @@ import com.loopers.application.point.UserPointFacade
 import com.loopers.domain.AbstractIntegrationTest
 import com.loopers.domain.IntegrationTestFixture
 import com.loopers.domain.IntegrationTestFixture.Companion.NO_EXIST_USER_ID
+import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -36,7 +37,7 @@ class UserPointIntegrationTest(
             val 사용자 = fixture.기본_사용자_등록()
             val 충전된_포인트 = fixture.충전하기()
             // act
-            val myPoint = userPointFacade.getMe(userId = 사용자.id)
+            val myPoint = userPointFacade.getMe(userId = UserId(사용자.id))
             // assert
             assertThat(requireNotNull(myPoint).point)
                 .isEqualByComparingTo(충전된_포인트.point)
@@ -46,7 +47,7 @@ class UserPointIntegrationTest(
         fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`() {
             // arrange
             // act
-            val result = userPointFacade.getMe(NO_EXIST_USER_ID)
+            val result = userPointFacade.getMe(UserId(NO_EXIST_USER_ID))
             // assert
             assertNull(result)
         }

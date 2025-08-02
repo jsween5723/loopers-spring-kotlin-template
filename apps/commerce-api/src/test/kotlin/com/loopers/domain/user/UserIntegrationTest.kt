@@ -54,7 +54,7 @@ class UserIntegrationTest(
             // arrange
             val existUser = fixture.회원가입()
             // act
-            val result = fixture.userService.read(existUser.id)
+            val result = fixture.userService.read(UserId(existUser.id))
             // assert
             assertThat(requireNotNull(result)).usingRecursiveComparison()
                 .ignoringFields("createdAt", "updatedAt")
@@ -65,7 +65,7 @@ class UserIntegrationTest(
         fun `해당 ID 의 회원이 존재하지 않을 경우, null 이 반환된다`() {
             // arrange
             // act
-            val result = fixture.userService.read(NO_EXIST_USER_ID)
+            val result = fixture.userService.read(UserId(NO_EXIST_USER_ID))
             // assert
             assertNull(result)
         }
