@@ -6,6 +6,7 @@ import com.loopers.domain.brand.BrandRepository
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductQuery
 import com.loopers.domain.product.ProductRepository
+import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.product.SortFor
 import com.loopers.domain.productlike.ProductLikeRepository
@@ -52,6 +53,7 @@ class ProductSearchTest(
         val one = insertProduct(createProduct(brandId = 1L))
         val two = insertProduct(createProduct(brandId = 1L))
         val three = insertProduct(createProduct(brandId = 2L))
+
         // act
         val actual = sut.search(userId = userId, ProductQuery(brandId = 1L))
         // assert
@@ -82,13 +84,11 @@ class ProductSearchTest(
         assertThat(actual.products.map { it.likeCount }).isEqualTo(listOf(1L, 2L, 3L))
     }
 
-    private fun insertProduct(product: Product, likeCount: Int = 1): Product {
+    private fun insertProduct(product: Product, likeCount: Long = 1): Product {
         val saved = productRepository.save(product)
-        increaseLike(product = saved, number = likeCount)
+        productSignalRepository.save(ProductSignal(saved, likeCount))
         return saved
     }
-
-    private fun increaseLike(product: Product, number: Int) = IntRange(1, number).forEach { productLikeFacade.add(userId = UserId(it.toLong()), productId = product.id) }
 
     private fun createProduct(
         name: String = "Ismael Flowers",
