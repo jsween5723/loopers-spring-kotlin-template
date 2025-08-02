@@ -1,6 +1,7 @@
 package com.loopers.interfaces.api
 
 import com.loopers.domain.auth.Authentication
+import com.loopers.domain.user.UserId
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.support.WebDataBinderFactory
@@ -21,7 +22,7 @@ class AuthenticationResolver : HandlerMethodArgumentResolver {
         webRequest.getNativeRequest(HttpServletRequest::class.java)!!
             .getHeader("X-USER-ID")
             .let {
-                Authentication(id = it.toLong())
+                Authentication(userId = UserId(it.toLong()))
             }
     }.getOrElse {
         throw IllegalArgumentException("X-USER-ID가 비어있습니다.")
