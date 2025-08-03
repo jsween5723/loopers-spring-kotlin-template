@@ -31,7 +31,6 @@ class ProductSearchTest(
     fun prepare() {
         productLikeRepository.deleteAllInBatch()
         productSignalRepository.deleteAllInBatch()
-        productRepository.deleteAllInBatch()
         brandRepository.deleteAllInBatch()
     }
 

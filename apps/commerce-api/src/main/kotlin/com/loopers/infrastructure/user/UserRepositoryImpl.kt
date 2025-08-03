@@ -14,6 +14,7 @@ class UserRepositoryImpl(private val jpaRepository: UserJpaRepository) : UserRep
     override fun existsBy(username: String): Boolean = jpaRepository.existsByUsername(username)
 }
 
+@Repository
 interface UserJpaRepository : JpaRepository<User, Long> {
     fun existsByUsername(username: String): Boolean
 }

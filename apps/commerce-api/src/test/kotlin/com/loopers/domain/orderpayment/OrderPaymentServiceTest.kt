@@ -4,7 +4,7 @@ import com.loopers.application.order.OrderPaymentService
 import com.loopers.application.order.UserPointPay
 import com.loopers.domain.order.Order
 import com.loopers.domain.point.UserPoint
-import com.loopers.domain.product.LineItem
+import com.loopers.domain.order.LineItem
 import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
 import org.instancio.Instancio
@@ -44,6 +44,6 @@ class OrderPaymentServiceTest {
             paymentMethods = listOf(method),
         )
         // assert
-        assertThat(actual.sumOf { it.paymentInfo.amount }).isEqualTo(1500L.toBigDecimal())
+        assertThat(actual.sumOf { it.info.amount }).isEqualTo(1500L.toBigDecimal())
     }
 }
