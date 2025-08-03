@@ -1,5 +1,6 @@
 package com.loopers.domain.point
 
+import com.loopers.domain.user.UserId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -12,7 +13,7 @@ class UserPointTest {
 
     @BeforeEach
     fun setUp() {
-        userPoint = UserPoint(userId = 1L)
+        userPoint = UserPoint(userId = UserId(1L))
     }
 
     @Test

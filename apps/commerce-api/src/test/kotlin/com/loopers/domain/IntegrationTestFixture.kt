@@ -26,6 +26,6 @@ class IntegrationTestFixture(val userService: UserService, val userPointService:
     ): UserPoint = userPointService.charge(command)
 
     companion object {
-        const val NO_EXIST_USER_ID = -1L
+        val NO_EXIST_USER_ID = -1L
     }
 }

@@ -6,6 +6,6 @@ import java.math.BigDecimal
 
 class UserPointRequest private constructor() {
     data class Charge(val amount: BigDecimal) {
-        fun toCommand(authentication: Authentication) = UserPointCommand.Charge(userId = authentication.id, amount = amount)
+        fun toCommand(authentication: Authentication) = UserPointCommand.Charge(userId = authentication.userId, amount = amount)
     }
 }

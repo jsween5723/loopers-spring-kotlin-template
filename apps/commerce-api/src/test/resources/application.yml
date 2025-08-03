@@ -11,5 +11,3 @@ junit:
         enabled: true
         mode:
           default: concurrent
-          classes:
-            default: concurrent
