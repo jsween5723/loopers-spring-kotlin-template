@@ -2,7 +2,7 @@ package com.loopers.application.order
 
 import com.loopers.domain.IntegrationTest
 import com.loopers.domain.payment.Payment
-import com.loopers.domain.payment.PaymentInstrument
+import com.loopers.domain.payment.PaymentMethod
 import com.loopers.domain.user.UserId
 import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
@@ -22,8 +22,8 @@ class OrderPayFacadeTest(
         val criteria = OrderPayFacade.Criteria(
             orderId = -1L,
             targets = listOf(
-                OrderPayFacade.Criteria.PaymentInstrumentTypeAndAmount(
-                    type = PaymentInstrument.Type.USER_POINT,
+                OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                    type = PaymentMethod.Type.USER_POINT,
                     amount = 2000L.toBigDecimal(),
                 ),
             ),
@@ -44,8 +44,8 @@ class OrderPayFacadeTest(
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
             targets = listOf(
-                OrderPayFacade.Criteria.PaymentInstrumentTypeAndAmount(
-                    type = PaymentInstrument.Type.USER_POINT,
+                OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                    type = PaymentMethod.Type.USER_POINT,
                     amount = create.totalPrice,
                 ),
             ),

@@ -1,11 +1,11 @@
 package com.loopers.domain.payment
 
-import com.loopers.domain.user.UserId
 import java.math.BigDecimal
 
-interface PaymentInstrument {
+interface PaymentMethod {
     val type: Type
-    fun pay(amount: BigDecimal, userId: UserId): Paid
+    val amount: BigDecimal
+    fun pay(): Paid
 
     enum class Type {
         USER_POINT,

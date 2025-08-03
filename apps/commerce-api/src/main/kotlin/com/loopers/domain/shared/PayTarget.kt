@@ -1,6 +1,6 @@
 package com.loopers.domain.shared
 
-import com.loopers.domain.payment.PaymentInstrument
+import com.loopers.domain.payment.PaymentMethod
 import java.math.BigDecimal
 
-data class PayTarget(val instrument: PaymentInstrument, val amount: BigDecimal)
+data class PayTarget(val instrument: PaymentMethod, val amount: BigDecimal)

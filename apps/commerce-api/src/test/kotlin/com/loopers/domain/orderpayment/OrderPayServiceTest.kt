@@ -1,10 +1,11 @@
 package com.loopers.domain.orderpayment
 
+import com.loopers.application.order.OrderPaymentService
 import com.loopers.domain.order.Order
 import com.loopers.domain.payment.Paid
-import com.loopers.domain.payment.PaymentInstrument
+import com.loopers.domain.payment.PaymentMethod
+import com.loopers.domain.payment.PreviousPayments
 import com.loopers.domain.product.LineItem
-import com.loopers.domain.shared.PayTarget
 import com.loopers.domain.user.UserId
 import io.mockk.every
 import io.mockk.mockk
@@ -16,22 +17,20 @@ import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
 class OrderPayServiceTest {
-    private val sut = OrderPayService()
+    private val sut = OrderPaymentService()
     private val userId = UserId(id = 5927)
-    private val createTarget = { amount: BigDecimal ->
-        PayTarget(mockk<PaymentInstrument>(), amount = amount).also {
+    private val createMethod = { amount: BigDecimal ->
+        mockk<PaymentMethod>().also {
             every {
-                it.instrument.pay(
-                    userId = userId,
-                    amount = amount,
-                )
+                it.pay()
             }.returns(
                 Paid(
                     userId = userId,
                     amount = amount,
-                    instrumentType = PaymentInstrument.Type.USER_POINT,
+                    methodType = PaymentMethod.Type.USER_POINT,
                 ),
             )
+            every { it.amount }.returns(amount)
         }
     }
 
@@ -47,19 +46,15 @@ class OrderPayServiceTest {
             ),
         )
         val amount = 1500L.toBigDecimal()
-        val target = createTarget(amount)
+        val target = createMethod(amount)
         // act
-        val actual = sut.payOrder(
-            OrderPayService.Command(
-                userId = userId,
+        val actual = sut.pay(
                 order = order,
-                targets = listOf(target),
-                previousPayments = OrderPayments(),
-            ),
+                paymentMethods = listOf(target),
+                previousPayments = PreviousPayments(),
         )
         // assert
-        assertThat(actual[0].order).isEqualTo(order)
-        assertThat(actual[0].payment.amount).isEqualTo(1500L.toBigDecimal())
+        assertThat(actual.sumOf { it.amount }).isEqualTo(1500L.toBigDecimal())
     }
 
     @Test
@@ -74,18 +69,11 @@ class OrderPayServiceTest {
             ),
         )
         val amount = 2500L.toBigDecimal()
-        val target = createTarget(amount)
+        val target = createMethod(amount)
         // act
         // assert
         assertThatThrownBy {
-            sut.payOrder(
-                OrderPayService.Command(
-                    userId = userId,
-                    order = order,
-                    targets = listOf(target),
-                    previousPayments = OrderPayments(),
-                ),
-            )
+            sut.pay(order = order, previousPayments = PreviousPayments(), paymentMethods = listOf(target))
         }
             .isInstanceOf(IllegalStateException::class.java)
     }

@@ -21,7 +21,6 @@ import java.time.ZonedDateTime
 class ProductSearchTest(
     private val sut: ProductFacade,
     private val productRepository: ProductRepository,
-    private val productLikeFacade: ProductLikeFacade,
     private val productLikeRepository: ProductLikeRepository,
     private val brandRepository: BrandRepository,
     private val productSignalRepository: ProductSignalRepository,
