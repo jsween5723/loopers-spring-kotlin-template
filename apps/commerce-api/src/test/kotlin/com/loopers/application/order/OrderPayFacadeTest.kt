@@ -95,4 +95,25 @@ class OrderPayFacadeTest(
         // assert
         assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
     }
+
+    @Test
+    fun `주문 시 유저의 포인트 잔액이 부족할 경우 주문은 실패해야 한다`() {
+        // arrange
+        val userId = UserId(1L)
+        userPointJpaRepository.save(UserPoint(userId = userId))
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = 0))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
+        val criteria = OrderPayFacade.Criteria(
+            orderId = create.id,
+            targets = listOf(
+                OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                    type = PaymentMethod.Type.USER_POINT,
+                    amount = create.totalPrice,
+                ),
+            ),
+        )
+        // act
+        // assert
+        assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
+    }
 }
