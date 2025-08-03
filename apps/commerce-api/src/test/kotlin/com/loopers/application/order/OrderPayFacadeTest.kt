@@ -14,6 +14,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -94,14 +95,19 @@ class OrderPayFacadeTest(
         // act
         // assert
         assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
+        // 롤백처리 확인
+        // TODO: 쿠폰 롤백처리 확인
+        val actualPoint = userPointJpaRepository.findByUserId(userId)!!
+        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal())
     }
 
     @Test
     fun `주문 시 유저의 포인트 잔액이 부족할 경우 주문은 실패해야 한다`() {
         // arrange
-        val userId = UserId(1L)
+        val userId = UserId(2L)
         userPointJpaRepository.save(UserPoint(userId = userId))
-        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = 0))
+        val stock = 1L
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
         val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
@@ -115,5 +121,9 @@ class OrderPayFacadeTest(
         // act
         // assert
         assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
+        // 롤백처리 확인
+        // TODO: 쿠폰 롤백처리 확인
+        val actualProduct = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(actualProduct.stock).isEqualTo(1)
     }
 }

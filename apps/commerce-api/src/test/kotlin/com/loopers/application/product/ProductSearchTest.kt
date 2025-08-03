@@ -9,30 +9,22 @@ import com.loopers.domain.product.ProductRepository
 import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.product.SortFor
-import com.loopers.domain.productlike.ProductLikeRepository
 import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
 @IntegrationTest
+@Transactional
 class ProductSearchTest(
     private val sut: ProductFacade,
     private val productRepository: ProductRepository,
-    private val productLikeRepository: ProductLikeRepository,
     private val brandRepository: BrandRepository,
     private val productSignalRepository: ProductSignalRepository,
 ) {
     private val userId = UserId(2L)
-
-    @BeforeEach
-    fun prepare() {
-        productLikeRepository.deleteAllInBatch()
-        productSignalRepository.deleteAllInBatch()
-        brandRepository.deleteAllInBatch()
-    }
 
     @Test
     fun `상품 id로 상세정보를 조회할 수 있다`() {
