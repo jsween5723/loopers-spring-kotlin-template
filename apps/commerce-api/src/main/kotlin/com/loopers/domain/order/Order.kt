@@ -5,6 +5,7 @@ import com.loopers.domain.shared.IdAndQuantity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
+import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import java.math.BigDecimal
 
@@ -29,7 +30,7 @@ class Order : BaseEntity() {
 
 @Embeddable
 class OrderLines {
-    @OneToMany(mappedBy = "orderId", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
     val orderLines = mutableListOf<OrderLine>()
     val totalPrice: BigDecimal get() = orderLines.sumOf { it.price }
     val lineItems get() = orderLines.map { it.lineItem }
@@ -40,6 +41,6 @@ class OrderLines {
 }
 
 @Entity
-data class OrderLine(val orderId: Long, val lineItem: LineItem) : BaseEntity() {
+data class OrderLine(@JoinColumn val orderId: Long, val lineItem: LineItem) : BaseEntity() {
     val price: BigDecimal get() = lineItem.totalPrice
 }

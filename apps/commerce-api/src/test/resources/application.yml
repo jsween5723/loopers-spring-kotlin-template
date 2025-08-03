@@ -9,5 +9,3 @@ junit:
     execution:
       parallel:
         enabled: true
-        mode:
-          default: concurrent

@@ -32,7 +32,7 @@ class OrderPayFacade(
             .let(paymentRepository::saveAll)
 
         // 재고 차감
-        val products = order.lineItems.map(LineItem::productId).sorted()
+        val products = order.lineItems.map(LineItem::productId)
             .let(productRepository::getByIdsForUpdate)
         productDeductService.deduct(products, order.qtys)
         return Result(
