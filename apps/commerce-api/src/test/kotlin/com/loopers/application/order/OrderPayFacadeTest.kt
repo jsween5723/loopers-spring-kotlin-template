@@ -55,10 +55,13 @@ class OrderPayFacadeTest(
     }
 
     @Test
-    fun `존재하는 주문이면 성공한다`() {
+    fun `주문 성공 시, 모든 처리는 정상 반영되어야 한다`() {
         // arrange
-        val userId = UserId(1L)
-        val create = orderCreateFacade.create(userId, listOf())
+        val userId = UserId(3L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val stock = 1L
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
             targets = listOf(
@@ -74,6 +77,12 @@ class OrderPayFacadeTest(
         assertThat(payResult.orderId).isEqualTo(create.id)
         assertThat(payResult.payments[0].type).isEqualTo(Payment.Type.PAID)
         assertThat(payResult.payments[0].amount).isEqualTo(create.totalPrice)
+        // 반영확인
+        // TODO: 쿠폰 반영 확인
+        val actualPoint = userPointJpaRepository.findByUserId(userId = userId)!!
+        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 1000.toBigDecimal())
+        val productActual = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(productActual.stock).isEqualTo(0)
     }
 
     @Test
