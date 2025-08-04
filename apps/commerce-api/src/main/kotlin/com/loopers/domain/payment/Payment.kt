@@ -1,8 +1,10 @@
 package com.loopers.domain.payment
 
 import com.loopers.domain.BaseEntity
+import com.loopers.domain.payment.Payment.Type
 import com.loopers.domain.user.UserId
 import jakarta.persistence.DiscriminatorValue
+import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -13,31 +15,36 @@ import java.math.BigDecimal
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorValue("type")
-sealed class Payment(
-    val userId: UserId,
-    val amount: BigDecimal,
-    @Enumerated(EnumType.STRING)
-    val instrumentType: PaymentMethod.Type,
-    @Enumerated(EnumType.STRING)
-    val type: Type,
-) : BaseEntity() {
+abstract class Payment(val paymentInfo: PaymentInfo) : BaseEntity() {
     enum class Type {
         PAID,
         REFUND,
         CANCEL,
     }
-
-    companion object {
-        fun paid(userId: UserId, target: BigDecimal, method: PaymentMethod): Paid =
-            Paid(userId = userId, amount = target, methodType = method.type)
-    }
 }
 
 @Entity
-class Paid internal constructor(userId: UserId, amount: BigDecimal, methodType: PaymentMethod.Type) :
+class OrderPayment(val orderId: Long, paymentInfo: PaymentInfo) :
     Payment(
-        userId = userId,
-        amount = amount,
-        instrumentType = methodType,
-        type = Type.PAID,
+        paymentInfo = paymentInfo,
     )
+
+@Embeddable
+data class PaymentInfo private constructor(
+    val userId: UserId,
+    val amount: BigDecimal,
+    @Enumerated(EnumType.STRING)
+    val methodType: PaymentMethod.Type,
+    @Enumerated(EnumType.STRING)
+    val type: Type,
+) {
+    companion object {
+        fun paid(userId: UserId, amount: BigDecimal, method: PaymentMethod): PaymentInfo =
+            PaymentInfo(
+                userId = userId,
+                amount = amount,
+                methodType = method.type,
+                type = Type.PAID,
+            )
+    }
+}

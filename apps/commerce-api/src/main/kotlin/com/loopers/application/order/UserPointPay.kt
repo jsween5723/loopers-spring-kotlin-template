@@ -1,6 +1,6 @@
 package com.loopers.application.order
 
-import com.loopers.domain.payment.Paid
+import com.loopers.domain.payment.PaymentInfo
 import com.loopers.domain.payment.PaymentMethod
 import com.loopers.domain.point.UserPoint
 import java.math.BigDecimal
@@ -9,8 +9,8 @@ class UserPointPay(private val userPoint: UserPoint, override val amount: BigDec
     override val type: PaymentMethod.Type
         get() = PaymentMethod.Type.USER_POINT
 
-    override fun pay(): Paid {
+    override fun pay(): PaymentInfo {
         userPoint.use(amount)
-        return Paid(userId = userPoint.userId, amount = amount, methodType = PaymentMethod.Type.USER_POINT)
+        return PaymentInfo.paid(userId = userPoint.userId, amount = amount, method = this)
     }
 }
