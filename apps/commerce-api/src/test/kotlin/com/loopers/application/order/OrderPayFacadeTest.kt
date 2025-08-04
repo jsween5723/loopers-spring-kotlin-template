@@ -136,9 +136,11 @@ class OrderPayFacadeTest(
         // arrange
         val userId = UserId(4L)
         userPointJpaRepository.save(UserPoint(userId = userId))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
         val stock = 1L
         val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
-        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId)
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
             targets = listOf(
@@ -153,6 +155,8 @@ class OrderPayFacadeTest(
         assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
         // 롤백처리 확인
         // TODO: 쿠폰 롤백처리 확인
+        val issuedCoupon = issuedCouponJpaRepository.findByIdOrNull(issuedCouponId)!!
+        assertThat(issuedCoupon.usedAt).isNull()
         val actualProduct = productJpaRepository.findByIdOrNull(product.id)!!
         assertThat(actualProduct.stock).isEqualTo(1)
     }

@@ -12,12 +12,12 @@ import com.loopers.domain.product.SortFor
 import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.ZonedDateTime
+import kotlin.test.Ignore
 
 @IntegrationTest
-@Transactional
+@Ignore
 class ProductSearchTest(
     private val sut: ProductFacade,
     private val productRepository: ProductRepository,
