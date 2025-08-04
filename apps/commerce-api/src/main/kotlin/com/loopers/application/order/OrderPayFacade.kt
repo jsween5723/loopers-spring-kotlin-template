@@ -1,5 +1,6 @@
 package com.loopers.application.order
 
+import com.loopers.domain.coupon.IssuedCouponRepository
 import com.loopers.domain.order.LineItem
 import com.loopers.domain.order.OrderRepository
 import com.loopers.domain.payment.PaymentInfo
@@ -18,6 +19,7 @@ class OrderPayFacade(
     private val paymentRepository: PaymentRepository,
     private val productRepository: ProductRepository,
     private val methodFactory: PaymentMethodFactory,
+    private val issuedCouponRepository: IssuedCouponRepository,
 ) {
     private val productDeductService = ProductDeductService()
     private val orderPaymentService = OrderPaymentService()
@@ -27,17 +29,17 @@ class OrderPayFacade(
         // 관련 도메인 객체 확보
         val order = orderRepository.getById(criteria.orderId)
         // 결제 및 결제 기록 저장
+        val issuedCoupon = issuedCouponRepository.findById(order.issuedCouponId)
         val methods = methodFactory.generate(userId, criteria.targets)
-        val payments = orderPaymentService.pay(order, methods)
-            .let(paymentRepository::saveAll)
-
+        val payment = orderPaymentService.pay(order, methods.first(), issuedCoupon)
+            .let(paymentRepository::save)
         // 재고 차감
         val products = order.lineItems.map(LineItem::productId)
             .let(productRepository::getByIdsForUpdate)
         productDeductService.deduct(products, order.qtys)
         return Result(
             orderId = order.id,
-            payments = payments.map { it.info },
+            payment = payment.info,
         )
     }
 
@@ -45,5 +47,5 @@ class OrderPayFacade(
         data class PaymentMethodTypeAndAmount(val type: PaymentMethod.Type, val amount: BigDecimal)
     }
 
-    data class Result(val orderId: Long, val payments: List<PaymentInfo>)
+    data class Result(val orderId: Long, val payment: PaymentInfo)
 }

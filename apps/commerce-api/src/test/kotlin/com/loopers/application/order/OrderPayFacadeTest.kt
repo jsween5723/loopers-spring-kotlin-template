@@ -11,6 +11,7 @@ import com.loopers.domain.product.Product
 import com.loopers.domain.shared.IdAndQuantity
 import com.loopers.domain.user.UserId
 import com.loopers.infrastructure.coupon.CouponJpaRepository
+import com.loopers.infrastructure.coupon.IssuedCouponJpaRepository
 import com.loopers.infrastructure.point.UserPointJpaRepository
 import com.loopers.infrastructure.product.ProductJpaRepository
 import jakarta.persistence.EntityNotFoundException
@@ -28,6 +29,9 @@ class OrderPayFacadeTest(
     private val sut: OrderPayFacade,
     private val orderCreateFacade: OrderCreateFacade,
 ) {
+
+    @Autowired
+    private lateinit var issuedCouponJpaRepository: IssuedCouponJpaRepository
 
     @Autowired
     private lateinit var couponFacade: CouponFacade
@@ -70,9 +74,11 @@ class OrderPayFacadeTest(
         // arrange
         val userId = UserId(3L)
         userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
         val stock = 1L
         val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
-        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId)
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
             targets = listOf(
@@ -86,12 +92,13 @@ class OrderPayFacadeTest(
         val payResult = sut.pay(userId, criteria = criteria)
         // assert
         assertThat(payResult.orderId).isEqualTo(create.id)
-        assertThat(payResult.payments[0].type).isEqualTo(Payment.Type.PAID)
-        assertThat(payResult.payments[0].amount).isEqualTo(create.totalPrice)
+        assertThat(payResult.payment.type).isEqualTo(Payment.Type.PAID)
+        assertThat(payResult.payment.amount).isEqualByComparingTo(coupon.discount(create.totalPrice))
         // 반영확인
-        // TODO: 쿠폰 반영 확인
+        val actualCoupon = issuedCouponJpaRepository.findByIdOrNull(issuedCouponId)!!
+        assertThat(actualCoupon.usedAt).isNotNull
         val actualPoint = userPointJpaRepository.findByUserId(userId = userId)!!
-        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 1000.toBigDecimal())
+        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 800.toBigDecimal())
         val productActual = productJpaRepository.findByIdOrNull(product.id)!!
         assertThat(productActual.stock).isEqualTo(0)
     }
@@ -223,7 +230,7 @@ class OrderPayFacadeTest(
     @Test
     fun `동일한 쿠폰으로 여러 기기에서 동시에 주문해도, 쿠폰은 단 한번만 사용되어야 한다`() {
         // arrange
-        val userId = UserId(22L)
+        val userId = UserId(40L)
         userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
         val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
         val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId

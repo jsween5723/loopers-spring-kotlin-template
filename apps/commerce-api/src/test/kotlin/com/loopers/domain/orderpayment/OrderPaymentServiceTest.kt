@@ -2,13 +2,11 @@ package com.loopers.domain.orderpayment
 
 import com.loopers.application.order.OrderPaymentService
 import com.loopers.application.order.UserPointPay
+import com.loopers.domain.order.LineItem
 import com.loopers.domain.order.Order
 import com.loopers.domain.point.UserPoint
-import com.loopers.domain.order.LineItem
 import com.loopers.domain.user.UserId
 import org.assertj.core.api.Assertions.assertThat
-import org.instancio.Instancio
-import org.instancio.Select.field
 import org.junit.jupiter.api.Test
 import java.math.BigDecimal
 
@@ -21,7 +19,6 @@ class OrderPaymentServiceTest {
                 point = Long.MAX_VALUE.toBigDecimal(),
                 userId = UserId(id = 4743),
             ),
-            amount = amount,
         )
     }
 
@@ -30,20 +27,16 @@ class OrderPaymentServiceTest {
         // arrange
         val order = Order()
         order.changeTo(
-            listOf(
-                Instancio.of(LineItem::class.java)
-                    .set(field("price"), 2000.toBigDecimal())
-                    .create(),
-            ),
+            listOf(LineItem(productId = 6053, quantity = 1, productName = "Lakisha Fisher", brandId = 6293, price = 1500.toBigDecimal())),
         )
         val amount = 1500L.toBigDecimal()
         val method = method(amount)
         // act
         val actual = sut.pay(
             order = order,
-            paymentMethods = listOf(method),
+            paymentMethod = method,
         )
         // assert
-        assertThat(actual.sumOf { it.info.amount }).isEqualTo(1500L.toBigDecimal())
+        assertThat(actual.info.amount).isEqualTo(1500L.toBigDecimal())
     }
 }
