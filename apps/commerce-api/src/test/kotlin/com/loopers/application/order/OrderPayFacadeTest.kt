@@ -18,6 +18,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
 import java.time.ZonedDateTime
@@ -217,5 +218,32 @@ class OrderPayFacadeTest(
         // assert
         assertThatThrownBy { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId = issuedCouponId) }
             .isInstanceOf(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `동일한 쿠폰으로 여러 기기에서 동시에 주문해도, 쿠폰은 단 한번만 사용되어야 한다`() {
+        // arrange
+        val userId = UserId(22L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        val exceptions = mutableListOf<Throwable>()
+
+        val acts = IntRange(1, 3).map {
+            {
+            try {
+                orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId = issuedCouponId)
+            } catch (e: OptimisticLockingFailureException) {
+                exceptions.add(e)
+            }
+        }
+        }
+        // act
+        concurrency(acts)
+        // assert
+        assertThat(exceptions.size).isEqualTo(2)
     }
 }
