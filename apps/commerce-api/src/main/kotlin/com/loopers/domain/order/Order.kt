@@ -10,13 +10,15 @@ import jakarta.persistence.OneToMany
 import java.math.BigDecimal
 
 @Entity(name = "orders")
-class Order : BaseEntity() {
+class Order(var issuedCouponId: Long = 0L) : BaseEntity() {
     val orderLines = OrderLines()
 
     val lineItems get() = orderLines.lineItems
     val totalPrice get() = orderLines.totalPrice
     val qtys get() = lineItems.map { IdAndQuantity(it.productId, it.quantity) }
-
+    fun applyCoupon(issuedCouponId: Long) {
+        this.issuedCouponId = issuedCouponId
+    }
     fun changeTo(lineItems: List<LineItem>) {
         val orderLines = lineItems.map {
             OrderLine(

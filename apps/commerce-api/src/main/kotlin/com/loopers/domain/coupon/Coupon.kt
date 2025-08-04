@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Version
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
@@ -35,6 +36,8 @@ class IssuedCoupon(
     val coupon: Coupon,
     var usedAt: ZonedDateTime? = null,
 ) : BaseEntity() {
+    @Version
+    var version: Long = 0L
     fun use() {
         check(usedAt == null) { "이미 사용된 쿠폰입니다." }
         usedAt = ZonedDateTime.now()

@@ -27,4 +27,5 @@ class UserPointRepositoryImpl(private val jpaRepository: UserPointJpaRepository)
 interface UserPointJpaRepository : JpaRepository<UserPoint, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findForUpdateByUserId(userId: UserId): UserPoint?
+    fun findByUserId(userId: UserId): UserPoint?
 }

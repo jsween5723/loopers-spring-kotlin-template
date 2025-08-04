@@ -1,13 +1,16 @@
 package com.loopers.application.order
 
+import com.loopers.application.coupon.CouponFacade
 import com.loopers.concurrency
 import com.loopers.domain.IntegrationTest
+import com.loopers.domain.coupon.Coupon
 import com.loopers.domain.payment.Payment
 import com.loopers.domain.payment.PaymentMethod
 import com.loopers.domain.point.UserPoint
 import com.loopers.domain.product.Product
 import com.loopers.domain.shared.IdAndQuantity
 import com.loopers.domain.user.UserId
+import com.loopers.infrastructure.coupon.CouponJpaRepository
 import com.loopers.infrastructure.point.UserPointJpaRepository
 import com.loopers.infrastructure.product.ProductJpaRepository
 import jakarta.persistence.EntityNotFoundException
@@ -24,6 +27,12 @@ class OrderPayFacadeTest(
     private val sut: OrderPayFacade,
     private val orderCreateFacade: OrderCreateFacade,
 ) {
+
+    @Autowired
+    private lateinit var couponFacade: CouponFacade
+
+    @Autowired
+    private lateinit var couponJpaRepository: CouponJpaRepository
 
     @Autowired
     private lateinit var userPointJpaRepository: UserPointJpaRepository
@@ -80,7 +89,7 @@ class OrderPayFacadeTest(
         assertThat(payResult.payments[0].amount).isEqualTo(create.totalPrice)
         // 반영확인
         // TODO: 쿠폰 반영 확인
-        val actualPoint = userPointJpaRepository.findForUpdateByUserId(userId = userId)!!
+        val actualPoint = userPointJpaRepository.findByUserId(userId = userId)!!
         assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 1000.toBigDecimal())
         val productActual = productJpaRepository.findByIdOrNull(product.id)!!
         assertThat(productActual.stock).isEqualTo(0)
@@ -107,14 +116,14 @@ class OrderPayFacadeTest(
         assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
         // 롤백처리 확인
         // TODO: 쿠폰 롤백처리 확인
-        val actualPoint = userPointJpaRepository.findForUpdateByUserId(userId)!!
+        val actualPoint = userPointJpaRepository.findByUserId(userId)!!
         assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal())
     }
 
     @Test
     fun `주문 시 유저의 포인트 잔액이 부족할 경우 주문은 실패해야 한다`() {
         // arrange
-        val userId = UserId(2L)
+        val userId = UserId(4L)
         userPointJpaRepository.save(UserPoint(userId = userId))
         val stock = 1L
         val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
@@ -140,7 +149,7 @@ class OrderPayFacadeTest(
     @Test
     fun `동일한 유저가 서로 다른 주문을 동시에 수행해도, 포인트가 정상적으로 차감되어야 한다`() {
         // arrange
-        val userId = UserId(2L)
+        val userId = UserId(6L)
         val userPoint = userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
         val stock = 2L
         val price = 20000.toBigDecimal()
@@ -169,6 +178,7 @@ class OrderPayFacadeTest(
     fun `동일한 상품에 대해 여러 주문이 동시에 요청되어도, 재고가 정상적으로 차감되어야 한다`() {
         // arrange
         val userId = UserId(2L)
+        val userPoint = userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
         val stock = 2L
         val price = 20000.toBigDecimal()
         val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
@@ -190,5 +200,22 @@ class OrderPayFacadeTest(
         // assert
         val actual = productJpaRepository.findByIdOrNull(product.id)!!
         assertThat(actual.stock).isEqualTo(0)
+    }
+
+    @Test
+    fun `사용 불가능하거나 존재하지 않는 쿠폰일 경우 주문은 실패해야 한다`() {
+        // arrange
+        val userId = UserId(22L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId = issuedCouponId)
+        // act
+        // assert
+        assertThatThrownBy { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId = issuedCouponId) }
+            .isInstanceOf(IllegalStateException::class.java)
     }
 }
