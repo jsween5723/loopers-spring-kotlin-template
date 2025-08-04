@@ -11,10 +11,10 @@ class CouponTest {
         // arrange
         val coupon = Coupon(name = "June McCoy", amount = 200.toBigDecimal(), type = Coupon.Type.FIXED, stock = 20)
         val issuedCoupon = coupon.issue(userId = UserId(1L))
-        issuedCoupon.use()
+        issuedCoupon.discount(20000.toBigDecimal())
         // act
         // assert
-        assertThatThrownBy { issuedCoupon.use() }.isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { issuedCoupon.discount(20000.toBigDecimal()) }.isInstanceOf(IllegalStateException::class.java)
     }
 
     @Test

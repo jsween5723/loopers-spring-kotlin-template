@@ -10,7 +10,6 @@ class OrderCreateService {
         order.changeTo(lineItems)
         if (issuedCoupon != null) {
             order.applyCoupon(issuedCoupon.id)
-            issuedCoupon.use()
         }
         return order
     }

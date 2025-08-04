@@ -38,9 +38,9 @@ class IssuedCoupon(
 ) : BaseEntity() {
     @Version
     var version: Long = 0L
-    fun use() {
+    fun discount(price: BigDecimal): BigDecimal {
         check(usedAt == null) { "이미 사용된 쿠폰입니다." }
         usedAt = ZonedDateTime.now()
+        return coupon.discount(price)
     }
-    fun discount(price: BigDecimal): BigDecimal = coupon.discount(price)
 }
