@@ -164,4 +164,31 @@ class OrderPayFacadeTest(
         val actual = userPointJpaRepository.findByIdOrNull(userPoint.id)!!
         assertThat(actual.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 40000.toBigDecimal())
     }
+
+    @Test
+    fun `동일한 상품에 대해 여러 주문이 동시에 요청되어도, 재고가 정상적으로 차감되어야 한다`() {
+        // arrange
+        val userId = UserId(2L)
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        val criteriaList = IntRange(1, 2).map { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1))) }
+            .map {
+                OrderPayFacade.Criteria(
+                    orderId = it.id,
+                    targets = listOf(
+                        OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                            type = PaymentMethod.Type.USER_POINT,
+                            amount = it.totalPrice,
+                        ),
+                    ),
+                )
+            }
+        val acts = criteriaList.map { { sut.pay(userId, it) } }
+        // act
+        concurrency(acts)
+        // assert
+        val actual = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(actual.stock).isEqualTo(0)
+    }
 }
