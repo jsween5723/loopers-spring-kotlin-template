@@ -6,26 +6,34 @@ import com.loopers.domain.productlike.ProductLike
 
 class ProductInfoFactory {
     fun generate(
-        productWithSignal: List<ProductSignal>,
+        productWithSignals: List<ProductSignal>,
         brands: List<Brand>,
         likes: List<ProductLike>,
     ): List<ProductFacade.Result.ProductInfo> {
         val brandIdMap = brands.associateBy { it.id }
-        val likeProductIdMap = likes.associateBy { it.product.id }
-        return productWithSignal.map {
-            ProductFacade.Result.ProductInfo(
-                id = it.product.id,
-                name = it.product.name,
-                brandId = it.product.brandId,
-                brandName = brandIdMap[it.product.brandId]?.name ?: "",
-                displayedAt = it.product.displayedAt,
-                maxQuantity = it.product.maxQuantity,
-                price = it.product.price,
-                stock = it.product.stock,
-                state = it.product.state,
-                likeCount = it.likeCount,
-                isLiked = likeProductIdMap.containsKey(it.product.id),
-            )
+        return productWithSignals.map {
+            generate(productWithSignal = it, brand = brandIdMap[it.product.brandId], likes = likes)
         }
+    }
+    fun generate(
+        productWithSignal: ProductSignal,
+        brand: Brand?,
+        likes: Collection<ProductLike>,
+    ): ProductFacade.Result.ProductInfo {
+        val product = productWithSignal.product
+        val likeProductIdMap = likes.associateBy { it.product.id }
+        return ProductFacade.Result.ProductInfo(
+            id = product.id,
+            name = product.name,
+            brandId = product.brandId,
+            brandName = brand?.name ?: "",
+            displayedAt = product.displayedAt,
+            maxQuantity = product.maxQuantity,
+            price = product.price,
+            stock = product.stock,
+            state = product.state,
+            likeCount = productWithSignal.likeCount,
+            isLiked = likeProductIdMap.containsKey(product.id),
+        )
     }
 }

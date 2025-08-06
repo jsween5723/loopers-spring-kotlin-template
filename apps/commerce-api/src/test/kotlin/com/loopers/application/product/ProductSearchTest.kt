@@ -1,6 +1,7 @@
 package com.loopers.application.product
 
 import com.loopers.domain.IntegrationTest
+import com.loopers.domain.brand.Brand
 import com.loopers.domain.brand.BrandRepository
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductQuery
@@ -32,6 +33,17 @@ class ProductSearchTest(
         productSignalRepository.deleteAllInBatch()
         productRepository.deleteAllInBatch()
         brandRepository.deleteAllInBatch()
+    }
+
+    @Test
+    fun `상품 id로 상세정보를 조회할 수 있다`() {
+        // arrange
+        brandRepository.save(Brand(name = "Nanette Warner"))
+        val one = insertProduct(createProduct(brandId = 1L))
+        // act
+        val actual = sut.getDetail(userId, one.id)
+        // assert
+        assertThat(actual.id).isEqualTo(one.id)
     }
 
     @Test
