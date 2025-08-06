@@ -1,6 +1,7 @@
 package com.loopers.infrastructure.product
 
 import com.loopers.domain.IntegrationTest
+import com.loopers.domain.brand.BrandRepository
 import com.loopers.domain.product.Product
 import com.loopers.domain.product.ProductQuery
 import com.loopers.domain.product.ProductRepository
@@ -8,6 +9,7 @@ import com.loopers.domain.product.ProductSearchRepository
 import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.product.SortFor
+import com.loopers.domain.productlike.ProductLikeRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -20,12 +22,16 @@ class ProductSearchRepositoryImplTest(
     private val sut: ProductSearchRepository,
     private val productRepository: ProductRepository,
     private val productSignalRepository: ProductSignalRepository,
+    private val productLikeRepository: ProductLikeRepository,
+    private val brandRepository: BrandRepository,
 ) {
 
     @BeforeEach
     fun beforeEach() {
+        productLikeRepository.deleteAllInBatch()
         productSignalRepository.deleteAllInBatch()
         productRepository.deleteAllInBatch()
+        brandRepository.deleteAllInBatch()
     }
 
     @Test
@@ -62,7 +68,7 @@ class ProductSearchRepositoryImplTest(
         // act
         val actual = sut.search(ProductQuery(sort = SortFor.LIKES_ASC, pageable = PageRequest.of(0, 3)))
         // assert
-        assertThat(actual.map { it.likeCount }).isEqualTo(listOf(1, 2, 3))
+        assertThat(actual.map { it.likeCount }).isEqualTo(listOf(1L, 2L, 3L))
     }
 
     private fun insertProduct(product: Product, likeCount: Long = 0L): Product = productRepository.save(product)
