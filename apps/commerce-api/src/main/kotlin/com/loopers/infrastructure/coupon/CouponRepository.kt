@@ -3,7 +3,9 @@ package com.loopers.infrastructure.coupon
 import com.loopers.domain.coupon.Coupon
 import com.loopers.domain.coupon.CouponRepository
 import jakarta.persistence.EntityNotFoundException
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 
@@ -18,5 +20,6 @@ class CouponRepositoryImpl(private val jpaRepository: CouponJpaRepository) : Cou
 
 @Repository
 interface CouponJpaRepository : JpaRepository<Coupon, Long> {
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     fun findForUpdateById(couponId: Long): Coupon
 }
