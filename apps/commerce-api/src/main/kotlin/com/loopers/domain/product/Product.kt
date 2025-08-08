@@ -19,19 +19,17 @@ class Product(
     @Enumerated(EnumType.STRING)
     var state: State = State.AVAILABLE
 
-    fun select(quantity: Long): LineItem {
+    fun select(quantity: Long) {
         check(isAvailable()) { "상품을 현재 선택할 수 없습니다." }
         check(maxQuantity >= quantity) { "회당 최대 수량보다 많이 선택할 수 없습니다." }
         check(stock >= quantity) { "재고보다 많이 선택할 수 없습니다." }
-        return LineItem.from(product = this, quantity = quantity)
     }
 
-    fun deduct(quantity: Long): LineItem {
+    fun deduct(quantity: Long) {
         check(isAvailable()) { "상품을 현재 재고차감할 수 없습니다." }
         check(maxQuantity >= quantity) { "회당 최대 수량보다 많이 재고차감할 수 없습니다." }
         check(stock >= quantity) { "재고보다 많이 재고차감할 수 없습니다." }
         stock -= quantity
-        return LineItem.from(product = this, quantity = quantity)
     }
 
     private fun isAvailable(): Boolean = state.isAvailable() && displayedAt.isBefore(ZonedDateTime.now())

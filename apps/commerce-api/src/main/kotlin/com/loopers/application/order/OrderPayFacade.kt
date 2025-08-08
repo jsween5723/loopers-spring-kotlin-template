@@ -1,14 +1,14 @@
 package com.loopers.application.order
 
+import com.loopers.domain.coupon.IssuedCouponRepository
+import com.loopers.domain.order.LineItem
 import com.loopers.domain.order.OrderRepository
-import com.loopers.domain.payment.OrderPaymentRepository
-import com.loopers.domain.payment.PreviousPayments
-import com.loopers.domain.payment.Payment.Type
 import com.loopers.domain.payment.PaymentInfo
 import com.loopers.domain.payment.PaymentMethod
+import com.loopers.domain.payment.PaymentRepository
 import com.loopers.domain.product.ProductDeductService
+import com.loopers.domain.product.ProductRepository
 import com.loopers.domain.user.UserId
-import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -16,8 +16,10 @@ import java.math.BigDecimal
 @Component
 class OrderPayFacade(
     private val orderRepository: OrderRepository,
-    private val orderPaymentRepository: OrderPaymentRepository,
+    private val paymentRepository: PaymentRepository,
+    private val productRepository: ProductRepository,
     private val methodFactory: PaymentMethodFactory,
+    private val issuedCouponRepository: IssuedCouponRepository,
 ) {
     private val productDeductService = ProductDeductService()
     private val orderPaymentService = OrderPaymentService()
@@ -25,22 +27,19 @@ class OrderPayFacade(
     @Transactional
     fun pay(userId: UserId, criteria: Criteria): Result {
         // 관련 도메인 객체 확보
-        val order = orderRepository.findByIdOrNull(criteria.orderId)
-            ?: throw EntityNotFoundException("존재하지 않는 주문 정보입니다.")
-        val methods = methodFactory.generate(userId, criteria.targets)
-        val previousPayments = PreviousPayments(orderPaymentRepository.findByOrderId(order.id))
-
+        val order = orderRepository.getById(criteria.orderId)
         // 결제 및 결제 기록 저장
-        PaymentPriceStrategy().check(order, previousPayments, methods)
-        val payments = orderPaymentService.pay(order, methods)
-            .let(orderPaymentRepository::saveAll)
-
+        val issuedCoupon = issuedCouponRepository.findById(order.issuedCouponId)
+        val methods = methodFactory.generate(userId, criteria.targets)
+        val payment = orderPaymentService.pay(order, methods.first(), issuedCoupon)
+            .let(paymentRepository::save)
         // 재고 차감
-        productDeductService.deduct(order.productsAndQuantities)
-
+        val products = order.lineItems.map(LineItem::productId)
+            .let(productRepository::getByIdsForUpdate)
+        productDeductService.deduct(products, order.qtys)
         return Result(
             orderId = order.id,
-            payments = payments.map { it.paymentInfo },
+            payment = payment.info,
         )
     }
 
@@ -48,5 +47,5 @@ class OrderPayFacade(
         data class PaymentMethodTypeAndAmount(val type: PaymentMethod.Type, val amount: BigDecimal)
     }
 
-    data class Result(val orderId: Long, val payments: List<PaymentInfo>)
+    data class Result(val orderId: Long, val payment: PaymentInfo)
 }

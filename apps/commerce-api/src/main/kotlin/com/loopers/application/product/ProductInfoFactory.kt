@@ -21,7 +21,7 @@ class ProductInfoFactory {
         likes: Collection<ProductLike>,
     ): ProductFacade.Result.ProductInfo {
         val product = productWithSignal.product
-        val likeProductIdMap = likes.associateBy { it.product.id }
+        val likeProductIdMap = likes.associateBy { it.productId }
         return ProductFacade.Result.ProductInfo(
             id = product.id,
             name = product.name,

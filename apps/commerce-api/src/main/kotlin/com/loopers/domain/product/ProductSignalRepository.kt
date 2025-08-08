@@ -1,9 +1,7 @@
 package com.loopers.domain.product
 
-import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Query
-
-interface ProductSignalRepository : JpaRepository<ProductSignal, Long> {
-    @Query("select ps from ProductSignal ps where ps.product.id = :productId")
-    fun findByProductId(productId: Long): ProductSignal?
+interface ProductSignalRepository {
+    fun save(productSignal: ProductSignal): ProductSignal
+    fun getByProductId(productId: Long): ProductSignal
+    fun getForUpdateByProductId(productId: Long): ProductSignal
 }

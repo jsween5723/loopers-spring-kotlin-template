@@ -8,14 +8,14 @@ erDiagram
         timestamps created_at
         timestamps updated_at
     }
-    user_points {
+    user_point {
         bigint id PK
         bigint user_id FK
         decimal point
         timestamps created_at
         timestamps updated_at
     }
-    user_point_histories {
+    user_point_history {
         bigint id PK
         bigint user_point_id FK
         decimal previous_value
@@ -25,13 +25,13 @@ erDiagram
         timestamps created_at
         timestamps updated_at
     }
-    authentications {
+    authentication {
         bigint id PK
         bigint user_id FK
         timestamps created_at
         timestamps updated_at
     }
-    authentication_roles {
+    authentication_role {
         bigint id PK
         bigint authentication_id FK
         string role
@@ -39,7 +39,7 @@ erDiagram
         timestamps updated_at
     }
 
-    like_histories {
+    like_history {
         bigint id PK
         string target_type
         bigint target_id
@@ -48,10 +48,10 @@ erDiagram
         timestamps created_at
         timestamps updated_at
     }
-    users ||--o| user_points : has
-    users ||--|| authentications : has
-    authentications ||--|{ authentication_roles : contains
-    user_points ||--o{ user_point_histories: logged
+    users ||--o| user_point : has
+    users ||--|| authentication : has
+    authentication ||--|{ authentication_role : contains
+    user_point ||--o{ user_point_history: logged
 ```
 ```mermaid
 erDiagram    
@@ -75,7 +75,7 @@ erDiagram
 erDiagram        
     
     %% 상품
-    products {
+    product {
         bigint id PK
         bigint brand_id FK
         string name
@@ -85,7 +85,7 @@ erDiagram
         timestamps updated_at
     }
     
-    product_skus {
+    product_sku {
         bigint id PK
         bigint product_id FK
         string code
@@ -95,13 +95,13 @@ erDiagram
         timestamps updated_at
     }
     
-    product_sku_option_values {
+    product_sku_option_value {
         bigint id PK
         bigint product_sku_id FK
         bigint product_option_id FK
     }
     
-    product_options {
+    product_option {
         bigint id PK
         bigint product_id FK
         string code
@@ -111,7 +111,7 @@ erDiagram
         timestamps updated_at
     }
     
-    product_option_values {
+    product_option_value {
         bigint id PK
         bigint product_option_id FK
         bigint additional_price
@@ -119,7 +119,7 @@ erDiagram
         string code
     }
     
-    product_likes {
+    product_like {
         bigint id PK
         bigint user_id FK
         bigint product_id FK
@@ -128,13 +128,13 @@ erDiagram
     }
 
 
-    users ||--o{ product_likes: liked
-    products ||--o{ product_likes: has
-    products }o--|| brands: owned
-    products ||--|{ product_skus: "재고관리 단위"
-    product_skus ||--|{ product_sku_option_values: "조합대상목록"
-    products ||--|{ product_options: "선택 가능 옵션 종류"
-    product_options ||--|{ product_option_values: "옵션 항목 목록"
+    users ||--o{ product_like: liked
+    product ||--o{ product_like: has
+    product }o--|| brand: owned
+    product ||--|{ product_sku: "재고관리 단위"
+    product_sku ||--|{ product_sku_option_value: "조합대상목록"
+    product ||--|{ product_option: "선택 가능 옵션 종류"
+    product_option ||--|{ product_option_value: "옵션 항목 목록"
 ```
 ```mermaid
 erDiagram    
@@ -145,7 +145,7 @@ erDiagram
         timestamps created_at
         timestamps updated_at
     }
-    order_lines {
+    order_line {
         bigint id PK
         bigint order_id FK
         bigint sku_id FK
@@ -156,16 +156,16 @@ erDiagram
         timestamps created_at
         timestamps updated_at
     }
-    order_payments {
+    order_payment {
         bigint id PK
         bigint order_id FK
         bigint payment_id FK
         timestamps created_at
         timestamps updated_at
     }
-    orders ||--o{ order_lines: has
-    orders ||--o{ order_payments: paid
-    order_payments ||--|| payments: ""
+    orders ||--o{ order_line: has
+    orders ||--o{ order_payment: paid
+    order_payment ||--|| payment: ""
 ```
 ```mermaid
 erDiagram    
@@ -179,4 +179,25 @@ erDiagram
         timestamps updated_at
     }
 
+```
+
+
+```mermaid
+erDiagram
+    %% 쿠폰
+    coupon {
+        bigint id PK
+        decimal amount
+        type type
+        bigint stock
+    }
+    
+    issued_coupon {
+        bigint id PK
+        bigint coupon_id
+        bigint user_id
+    }
+
+    coupon ||--o{issued_coupon: issue
+    users ||--o{issued_coupon:has
 ```

@@ -4,7 +4,6 @@ import com.loopers.domain.product.ProductSignalRepository
 import com.loopers.domain.productlike.ProductLike
 import com.loopers.domain.productlike.ProductLikeRepository
 import com.loopers.domain.user.UserId
-import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,23 +14,22 @@ class ProductLikeFacade(
 ) {
     @Transactional
     fun add(userId: UserId, productId: Long) {
-        val signal = productSignalRepository.findByProductId(productId)
-            ?: throw EntityNotFoundException("$productId 는 존재하지 않는 상품입니다.")
-        if (productLikeRepository.existsByUserIdAndProduct(userId, signal.product)) {
+        val signal = productSignalRepository.getForUpdateByProductId(productId)
+        val like = productLikeRepository.findByUserIdAndProduct(userId, signal.product)
+        if (like != null) {
             return
         }
-        productLikeRepository.save(ProductLike(signal.product, userId))
+        productLikeRepository.save(ProductLike(signal.product.id, userId))
         signal.increaseLikeCount()
+        productSignalRepository.save(signal)
     }
 
     @Transactional
     fun remove(userId: UserId, productId: Long) {
-        val signal = productSignalRepository.findByProductId(productId)
-            ?: throw EntityNotFoundException("$productId 는 존재하지 않는 상품입니다.")
-        if (!productLikeRepository.existsByUserIdAndProduct(userId, signal.product)) {
-            return
-        }
-        productLikeRepository.delete(ProductLike(signal.product, userId))
+        val signal = productSignalRepository.getForUpdateByProductId(productId)
+        val like = productLikeRepository.findByUserIdAndProduct(userId, signal.product) ?: return
+        productLikeRepository.delete(like)
         signal.decreaseLikeCount()
+        productSignalRepository.save(signal)
     }
 }

@@ -210,6 +210,7 @@ sequenceDiagram
     participant PRCS as ProductService
     participant OCS as OrderdService
     participant PCS as PaymentService
+    participant ICR as IssuedCouponRepository
     C ->>+ OC: POST /api/v1/orders
     OC ->>+ OF: 주문 생성
     OF ->>+ PRCS: LineItem 목록 조회
@@ -220,6 +221,11 @@ sequenceDiagram
         PRCS -->> OF: throw IllegalStateException
     end
     PRCS -->>- OF: LineItem 목록
+    OF ->>+ ICR: 발급된 쿠폰 조회
+    alt 쿠폰이 존재하지 않을경우
+        PRCS -->> OF: throw EntityNotFoundException
+    end
+    ICR -->>- OF: 발급된 쿠폰
     OF ->>+ OCS: 주문 생성 (결제 대기중)
     OCS -->>- OF: 주문 정보
     OF ->>+ PCS: 결제 생성 (대기중)
@@ -265,6 +271,7 @@ sequenceDiagram
     participant PRR as ProductRepository
     participant PR as PaymentRepository
     participant ES as ExternalService
+    participant ICR as IssuedCouponRepository
     C ->>+ PC: POST /api/v1/order/:id/payments/point
     PC ->>+ PF: 지불하기
     
@@ -279,7 +286,14 @@ sequenceDiagram
         UPR -->> PF: throw EntityNotFoundException
     end
     UPR -->>- PF: 유저 포인트
-    PF -->>+ PQS: 결제(주문정보, 사용자 포인트)
+
+    OF ->>+ ICR: 발급된 쿠폰 조회
+    alt 쿠폰이 존재하지 않을경우
+        PRCS -->> OF: throw EntityNotFoundException
+    end
+    ICR -->>- OF: 발급된 쿠폰
+    
+    PF -->>+ PQS: 결제(주문정보, 사용자 포인트, 발급된 쿠폰)
     alt 포인트 부족
         PQS -->> PF: throw IllegalStateException
     end

@@ -1,19 +1,52 @@
 package com.loopers.application.order
 
+import com.loopers.application.coupon.CouponFacade
+import com.loopers.concurrency
 import com.loopers.domain.IntegrationTest
+import com.loopers.domain.coupon.Coupon
 import com.loopers.domain.payment.Payment
 import com.loopers.domain.payment.PaymentMethod
+import com.loopers.domain.point.UserPoint
+import com.loopers.domain.product.Product
+import com.loopers.domain.shared.IdAndQuantity
 import com.loopers.domain.user.UserId
+import com.loopers.infrastructure.coupon.CouponJpaRepository
+import com.loopers.infrastructure.coupon.IssuedCouponJpaRepository
+import com.loopers.infrastructure.point.UserPointJpaRepository
+import com.loopers.infrastructure.product.ProductJpaRepository
 import jakarta.persistence.EntityNotFoundException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.OptimisticLockingFailureException
+import org.springframework.data.repository.findByIdOrNull
+import java.math.BigDecimal
+import java.time.ZonedDateTime
 
 @IntegrationTest
 class OrderPayFacadeTest(
     private val sut: OrderPayFacade,
     private val orderCreateFacade: OrderCreateFacade,
 ) {
+
+    @Autowired
+    private lateinit var issuedCouponJpaRepository: IssuedCouponJpaRepository
+
+    @Autowired
+    private lateinit var couponFacade: CouponFacade
+
+    @Autowired
+    private lateinit var couponJpaRepository: CouponJpaRepository
+
+    @Autowired
+    private lateinit var userPointJpaRepository: UserPointJpaRepository
+
+    @Autowired
+    private lateinit var orderPayFacade: OrderPayFacade
+
+    @Autowired
+    private lateinit var productJpaRepository: ProductJpaRepository
 
     @Test
     fun `존재하지 않는 주문이면 EntityNotFoundException을 던진다`() {
@@ -37,10 +70,15 @@ class OrderPayFacadeTest(
     }
 
     @Test
-    fun `존재하는 주문이면 성공한다`() {
+    fun `주문 성공 시, 모든 처리는 정상 반영되어야 한다`() {
         // arrange
-        val userId = UserId(1L)
-        val create = orderCreateFacade.create(userId, listOf())
+        val userId = UserId(3L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 1L
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId)
         val criteria = OrderPayFacade.Criteria(
             orderId = create.id,
             targets = listOf(
@@ -54,7 +92,197 @@ class OrderPayFacadeTest(
         val payResult = sut.pay(userId, criteria = criteria)
         // assert
         assertThat(payResult.orderId).isEqualTo(create.id)
-        assertThat(payResult.payments[0].type).isEqualTo(Payment.Type.PAID)
-        assertThat(payResult.payments[0].amount).isEqualTo(create.totalPrice)
+        assertThat(payResult.payment.type).isEqualTo(Payment.Type.PAID)
+        assertThat(payResult.payment.amount).isEqualByComparingTo(coupon.discount(create.totalPrice))
+        // 반영확인
+        val actualCoupon = issuedCouponJpaRepository.findByIdOrNull(issuedCouponId)!!
+        assertThat(actualCoupon.usedAt).isNotNull
+        val actualPoint = userPointJpaRepository.findByUserId(userId = userId)!!
+        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 800.toBigDecimal())
+        val productActual = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(productActual.stock).isEqualTo(0)
+    }
+
+    @Test
+    fun `재고가 존재하지 않거나 부족할 경우 주문은 실패해야 한다`() {
+        // arrange
+        val userId = UserId(1L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = 0))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)))
+        val criteria = OrderPayFacade.Criteria(
+            orderId = create.id,
+            targets = listOf(
+                OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                    type = PaymentMethod.Type.USER_POINT,
+                    amount = create.totalPrice,
+                ),
+            ),
+        )
+        // act
+        // assert
+        assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
+        // 롤백처리 확인
+        issuedCouponJpaRepository.findByIdOrNull(issuedCouponId)
+
+        val actualPoint = userPointJpaRepository.findByUserId(userId)!!
+        assertThat(actualPoint.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal())
+    }
+
+    @Test
+    fun `주문 시 유저의 포인트 잔액이 부족할 경우 주문은 실패해야 한다`() {
+        // arrange
+        val userId = UserId(4L)
+        userPointJpaRepository.save(UserPoint(userId = userId))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 1L
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = 1000.toBigDecimal(), stock = stock))
+        val create = orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId)
+        val criteria = OrderPayFacade.Criteria(
+            orderId = create.id,
+            targets = listOf(
+                OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                    type = PaymentMethod.Type.USER_POINT,
+                    amount = create.totalPrice,
+                ),
+            ),
+        )
+        // act
+        // assert
+        assertThatThrownBy { orderPayFacade.pay(userId, criteria = criteria) }.isInstanceOf(IllegalStateException::class.java)
+        // 롤백처리 확인
+        // TODO: 쿠폰 롤백처리 확인
+        val issuedCoupon = issuedCouponJpaRepository.findByIdOrNull(issuedCouponId)!!
+        assertThat(issuedCoupon.usedAt).isNull()
+        val actualProduct = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(actualProduct.stock).isEqualTo(1)
+    }
+
+    @Test
+    fun `동일한 유저가 서로 다른 주문을 동시에 수행해도, 포인트가 정상적으로 차감되어야 한다`() {
+        // arrange
+        val userId = UserId(6L)
+        val userPoint = userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        val criteriaList = IntRange(1, 2).map { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1))) }
+            .map {
+                OrderPayFacade.Criteria(
+                    orderId = it.id,
+                    targets = listOf(
+                        OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                            type = PaymentMethod.Type.USER_POINT,
+                            amount = it.totalPrice,
+                        ),
+                    ),
+                )
+            }
+        val acts = criteriaList.map { { sut.pay(userId, it) } }
+        // act
+        concurrency(acts)
+        // assert
+        val actual = userPointJpaRepository.findByIdOrNull(userPoint.id)!!
+        assertThat(actual.point).isEqualByComparingTo(Long.MAX_VALUE.toBigDecimal() - 40000.toBigDecimal())
+    }
+
+    @Test
+    fun `동일한 상품에 대해 여러 주문이 동시에 요청되어도, 재고가 정상적으로 차감되어야 한다`() {
+        // arrange
+        val userId = UserId(2L)
+        val userPoint = userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        val criteriaList = IntRange(1, 2).map { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1))) }
+            .map {
+                OrderPayFacade.Criteria(
+                    orderId = it.id,
+                    targets = listOf(
+                        OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                            type = PaymentMethod.Type.USER_POINT,
+                            amount = it.totalPrice,
+                        ),
+                    ),
+                )
+            }
+        val acts = criteriaList.map { { sut.pay(userId, it) } }
+        // act
+        concurrency(acts)
+        // assert
+        val actual = productJpaRepository.findByIdOrNull(product.id)!!
+        assertThat(actual.stock).isEqualTo(0)
+    }
+
+    @Test
+    fun `사용 불가능하거나 존재하지 않는 쿠폰일 경우 주문은 실패해야 한다`() {
+        // arrange
+        val userId = UserId(22L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 2L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+        val criteriaList = IntRange(1, 2).map { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId) }
+            .map {
+                OrderPayFacade.Criteria(
+                    orderId = it.id,
+                    targets = listOf(
+                        OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                            type = PaymentMethod.Type.USER_POINT,
+                            amount = it.totalPrice,
+                        ),
+                    ),
+                )
+            }
+        // act
+        // assert
+        assertThatThrownBy { criteriaList.forEach { sut.pay(userId, it) } }
+            .isInstanceOf(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun `동일한 쿠폰으로 여러 기기에서 동시에 주문해도, 쿠폰은 단 한번만 사용되어야 한다`() {
+        // arrange
+        val userId = UserId(40L)
+        userPointJpaRepository.save(UserPoint(userId = userId, point = BigDecimal.valueOf(Long.MAX_VALUE)))
+        val coupon = couponJpaRepository.save(Coupon(name = "Neal Cohen", amount = 20.toBigDecimal(), type = Coupon.Type.RATE, stock = 3))
+        val issuedCouponId = couponFacade.issue(userId, coupon.id).issuedCouponId
+        val stock = 3L
+        val price = 20000.toBigDecimal()
+        val product = productJpaRepository.save(Product(name = "Miranda Moore", brandId = 5968, displayedAt = ZonedDateTime.now(), maxQuantity = 2, price = price, stock = stock))
+
+        val criteriaList = IntRange(1, 3).map { orderCreateFacade.create(userId, listOf(IdAndQuantity(productId = product.id, quantity = 1)), issuedCouponId) }
+            .map {
+                OrderPayFacade.Criteria(
+                    orderId = it.id,
+                    targets = listOf(
+                        OrderPayFacade.Criteria.PaymentMethodTypeAndAmount(
+                            type = PaymentMethod.Type.USER_POINT,
+                            amount = it.totalPrice,
+                        ),
+                    ),
+                )
+            }
+
+        val exceptions = mutableListOf<Throwable>()
+
+        val acts = criteriaList.map {
+            {
+                try {
+                    sut.pay(userId, it)
+                } catch (e: OptimisticLockingFailureException) {
+                    exceptions.add(e)
+                }
+            }
+        }
+        // act
+        concurrency(acts)
+        // assert
+        assertThat(exceptions.size).isEqualTo(2)
     }
 }

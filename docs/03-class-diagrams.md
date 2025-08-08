@@ -57,6 +57,50 @@ classDiagram
     }
     User --o Gender
 ```
+
+```mermaid
+classDiagram
+    class Coupon {
+        -Long id
+        -BigDecimal amount
+        -Type type
+        -Long stock
+        +issue(UserId userId): IssuedCoupon
+        +discount(BigDecimal target): BigDecimal
+    }
+    class Type {
+        <<enumeration>>
+        RATE
+        FIXED
+    }
+    
+    class IssuedCoupon {
+        -Long id
+        -UserId userId
+        -Coupon coupon
+        +discount(BigDecimal target): BigDecimal
+    }
+    
+    Coupon --* IssuedCoupon
+    
+    class DiscountPolicy {
+        <<interface>>
+        +discount(BigDecimal amount): BigDecimal
+    }
+    
+    class RateDiscountPolicy {
+        -BigDecimal amount
+        +discount(BigDecimal amount): BigDecimal
+    }
+    class FixedDiscountPolicy {
+        -BigDecimal amount
+        +discount(BigDecimal amount): BigDecimal
+    }
+    
+    RateDiscountPolicy --|> DiscountPolicy
+    FixedDiscountPolicy --|> DiscountPolicy
+```
+
 ```mermaid
 classDiagram
     class Brand {

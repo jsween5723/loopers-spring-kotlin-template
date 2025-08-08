@@ -4,10 +4,8 @@ datasource:
       jdbc-url: jdbc:h2:mem:test;MODE=MySQL
       username: sa
 
-junit:
-  jupiter:
-    execution:
-      parallel:
-        enabled: true
-        mode:
-          default: concurrent
+#junit:
+#  jupiter:
+#    execution:
+#      parallel:
+#        enabled: true
