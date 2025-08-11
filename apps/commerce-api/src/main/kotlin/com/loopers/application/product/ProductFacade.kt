@@ -36,8 +36,7 @@ class ProductFacade(
 
     @Transactional(readOnly = true)
     fun getDetail(userId: UserId, productId: Long): Result.ProductInfo {
-        val productWithSignal = productSignalRepository.findByIdOrNull(productId)
-            ?: throw EntityNotFoundException("$productId 는 존재하지 않는 상품입니다.")
+        val productWithSignal = productSignalRepository.getByProductId(productId)
         val brand = brandRepository.findByIdOrNull(productWithSignal.product.brandId)
             ?: throw EntityNotFoundException("${productWithSignal.product.brandId}는 존재하지 않는 브랜드입니다.")
         val likes = likeRepository.findByUserIdAndProductIn(userId, listOf(productWithSignal.product))

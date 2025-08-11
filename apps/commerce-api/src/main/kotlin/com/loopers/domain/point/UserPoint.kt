@@ -18,7 +18,7 @@ class UserPoint(
     }
 
     fun use(amount: BigDecimal) {
-        require(amount <= point) { "사용 금액은 보유량 이하여야 합니다." }
+        check(amount <= point) { "사용 금액은 보유량 이하여야 합니다." }
         point = point.subtract(amount)
     }
 }
