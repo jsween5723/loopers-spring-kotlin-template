@@ -3,6 +3,8 @@ package com.loopers.domain.payment
 import com.loopers.domain.BaseEntity
 import com.loopers.domain.payment.Payment.Type
 import com.loopers.domain.user.UserId
+import jakarta.persistence.DiscriminatorColumn
+import jakarta.persistence.DiscriminatorType
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
@@ -14,7 +16,7 @@ import java.math.BigDecimal
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorValue("type")
+@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
 abstract class Payment(val paymentInfo: PaymentInfo) : BaseEntity() {
     enum class Type {
         PAID,
@@ -24,6 +26,7 @@ abstract class Payment(val paymentInfo: PaymentInfo) : BaseEntity() {
 }
 
 @Entity
+@DiscriminatorValue("ORDER")
 class OrderPayment(val orderId: Long, paymentInfo: PaymentInfo) :
     Payment(
         paymentInfo = paymentInfo,
