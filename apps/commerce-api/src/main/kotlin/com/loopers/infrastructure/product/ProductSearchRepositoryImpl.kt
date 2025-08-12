@@ -11,6 +11,7 @@ import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.SortFor
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import javax.management.Query.eq
 
 @Repository
 class ProductSearchRepositoryImpl(private val jpaRepository: JpaProductRepository) : ProductSearchRepository {
@@ -19,7 +20,7 @@ class ProductSearchRepositoryImpl(private val jpaRepository: JpaProductRepositor
             select(
                 entity(ProductSignal::class),
             ).from(entity(ProductSignal::class), fetchJoin(path(ProductSignal::product)))
-                .where(eqBrandId(query.brandId))
+                .where(and(eqBrandId(query.brandId), path(Product::state).eq(Product.State.AVAILABLE)))
                 .orderBy(
                     productSort(query.sort),
                 )

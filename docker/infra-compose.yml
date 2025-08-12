@@ -11,12 +11,13 @@ services:
       - MYSQL_DATABASE=loopers
       - MYSQL_CHARACTER_SET=utf8mb4
       - MYSQL_COLLATE=utf8mb4_general_ci
-#    volumes:
-#      - mysql-8-data:/var/lib/mysql
-
+    volumes:
+      - mysql-8-data:/var/lib/mysql
+    networks:
+      - infra
 volumes:
   mysql-8-data:
 
 networks:
-  default:
+  infra:
     driver: bridge
