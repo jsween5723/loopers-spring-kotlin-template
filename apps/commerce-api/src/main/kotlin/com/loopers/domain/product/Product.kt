@@ -7,7 +7,7 @@ import jakarta.persistence.Enumerated
 import java.math.BigDecimal
 import java.time.ZonedDateTime
 
-@Entity(name = "products")
+@Entity
 class Product(
     val name: String,
     val brandId: Long,
