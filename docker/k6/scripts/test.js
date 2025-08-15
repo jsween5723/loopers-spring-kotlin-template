@@ -14,11 +14,13 @@ function randomInt(min, max) {
 
 const sorts = ['LIKES_ASC', 'PRICE_ASC', 'LATEST'];
 
-export default function () {
   const brandId = randomInt(2001, 2200);
   const sort = sorts[randomInt(0, sorts.length - 1)];
   const page = randomInt(1, 6);
   const limit = 20;
+
+export default function () {
+
 
   const url = `${__ENV.BASE_URL}/api/v1/products?brandId=${brandId}&sort=${sort}&page=${page}&limit=${limit}`;
 
