@@ -9,9 +9,10 @@ import com.loopers.domain.product.ProductQuery
 import com.loopers.domain.product.ProductSearchRepository
 import com.loopers.domain.product.ProductSignal
 import com.loopers.domain.product.SortFor
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import javax.management.Query.eq
+import java.util.stream.Stream
 
 @Repository
 class ProductSearchRepositoryImpl(private val jpaRepository: JpaProductRepository) : ProductSearchRepository {
@@ -27,6 +28,22 @@ class ProductSearchRepositoryImpl(private val jpaRepository: JpaProductRepositor
         }
             .filterNotNull()
 
+    override fun searchForIds(query: ProductQuery): List<Long> = jpaRepository.findPage(query.pageable) {
+        select(
+            path(ProductSignal::product).path(Product::id),
+        ).from(
+            entity(ProductSignal::class),
+            join(path(ProductSignal::product)),
+        )
+            .where(and(eqBrandId(query.brandId), path(Product::state).eq(Product.State.AVAILABLE)))
+            .orderBy(
+                productSort(query.sort),
+            )
+    }
+        .filterNotNull()
+
+    override fun findAllWithStream(): Stream<ProductSignal> = jpaRepository.findAllBy()
+
     private fun Jpql.eqBrandId(brandId: Long?): Predicatable? = brandId?.let { path(Product::brandId).eq(it) }
 
     private fun Jpql.productSort(sortBy: SortFor): SortNullsStep =
@@ -37,6 +54,10 @@ class ProductSearchRepositoryImpl(private val jpaRepository: JpaProductRepositor
         }
 }
 
+@Repository
 interface JpaProductRepository :
     JpaRepository<ProductSignal, Long>,
-    KotlinJdslJpqlExecutor
+    KotlinJdslJpqlExecutor {
+    @EntityGraph(attributePaths = ["product"])
+    fun findAllBy(): Stream<ProductSignal>
+}
