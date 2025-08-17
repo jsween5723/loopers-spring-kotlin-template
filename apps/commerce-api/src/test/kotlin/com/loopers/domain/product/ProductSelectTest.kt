@@ -1,6 +1,5 @@
 package com.loopers.domain.product
 
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.instancio.Instancio
 import org.instancio.Select.field
@@ -8,17 +7,6 @@ import org.junit.jupiter.api.Test
 import java.time.ZonedDateTime
 
 class ProductSelectTest {
-    @Test
-    fun `상품은 수량을 통해 선택하고 수량과 상품을 반환한다`() {
-        // arrange
-        val product = createProduct()
-        val quantity = 2L
-        // act
-        val actual = product.select(quantity)
-        // assert
-        val expected = LineItem.from(product, 2L)
-        assertThat(actual).isEqualTo(expected)
-    }
 
     @Test
     fun `상품은 선택할 때 선택 가능 상태가 아닐 경우 IllegalStateException을 던진다`() {

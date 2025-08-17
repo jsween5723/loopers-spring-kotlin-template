@@ -17,7 +17,6 @@ class PaymentMethodFactory(private val userPointRepository: UserPointRepository)
             when (it.type) {
                 PaymentMethod.Type.USER_POINT -> UserPointPay(
                     userPoint = userPointRepository.findByOrElsePersist(userId),
-                    amount = it.amount,
                 )
             }
         }

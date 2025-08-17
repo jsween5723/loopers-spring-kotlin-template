@@ -48,19 +48,7 @@ class ProductFacade(
 
     @Transactional(readOnly = true)
     fun getDetail(userId: UserId, productId: Long): Result.ProductResult {
-        val productInfo = productCacheTemplate.get(ProductKey.GetProduct(productId)) ?: productInfo(productId)
-        val likes = likeRepository.findLikedProductIds(userId, listOf(productInfo.id))
-        return factory.generateResult(
-            productInfo,
-            likes,
-        )
-    }
-
-    private fun productInfo(
-        productId: Long,
-    ): ProductInfo {
-        val productWithSignal = productSignalRepository.findByIdOrNull(productId)
-            ?: throw EntityNotFoundException("$productId 는 존재하지 않는 상품입니다.")
+        val productWithSignal = productSignalRepository.getByProductId(productId)
         val brand = brandRepository.findByIdOrNull(productWithSignal.product.brandId)
             ?: throw EntityNotFoundException("${productWithSignal.product.brandId}는 존재하지 않는 브랜드입니다.")
         return productCacheTemplate.save(factory.generateInfo(productWithSignal, brand))

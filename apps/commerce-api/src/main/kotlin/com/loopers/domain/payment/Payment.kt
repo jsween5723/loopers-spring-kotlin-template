@@ -1,36 +1,21 @@
 package com.loopers.domain.payment
 
 import com.loopers.domain.BaseEntity
-import com.loopers.domain.payment.Payment.Type
 import com.loopers.domain.user.UserId
-import jakarta.persistence.DiscriminatorColumn
-import jakarta.persistence.DiscriminatorType
-import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Embeddable
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
-import jakarta.persistence.Inheritance
-import jakarta.persistence.InheritanceType
 import java.math.BigDecimal
 
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
-abstract class Payment(val paymentInfo: PaymentInfo) : BaseEntity() {
+class Payment(val info: PaymentInfo, val orderId: Long) : BaseEntity() {
     enum class Type {
         PAID,
         REFUND,
         CANCEL,
     }
 }
-
-@Entity
-@DiscriminatorValue("ORDER")
-class OrderPayment(val orderId: Long, paymentInfo: PaymentInfo) :
-    Payment(
-        paymentInfo = paymentInfo,
-    )
 
 @Embeddable
 data class PaymentInfo private constructor(
@@ -39,7 +24,7 @@ data class PaymentInfo private constructor(
     @Enumerated(EnumType.STRING)
     val methodType: PaymentMethod.Type,
     @Enumerated(EnumType.STRING)
-    val type: Type,
+    val type: Payment.Type,
 ) {
     companion object {
         fun paid(userId: UserId, amount: BigDecimal, method: PaymentMethod): PaymentInfo =
@@ -47,7 +32,7 @@ data class PaymentInfo private constructor(
                 userId = userId,
                 amount = amount,
                 methodType = method.type,
-                type = Type.PAID,
+                type = Payment.Type.PAID,
             )
     }
 }

@@ -1,8 +1,9 @@
 package com.loopers.domain.product
 
-import com.loopers.domain.shared.ProductAndQuantity
+import com.loopers.domain.shared.IdAndQuantity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.test.util.ReflectionTestUtils
 import java.time.ZonedDateTime
 
 class ProductDeductTest {
@@ -20,12 +21,12 @@ class ProductDeductTest {
     @Test
     fun `선택 시 상품정보와 수량을 반환하고 재고가 변화하지 않는다`() {
         // arrange
-        val request = listOf(ProductAndQuantity(product = product, quantity = product.maxQuantity))
+        ReflectionTestUtils.setField(product, "id", 1L)
+        val request = listOf(product)
+        val qtys = listOf(IdAndQuantity(1L, product.stock))
         // act
-        val actual = sut.deduct(request)
+        val actual = sut.deduct(request, qtys)
         // assert
-        assertThat(actual[0]).extracting("quantity")
-            .isEqualTo(maxQuantity)
-        assertThat(actual[0].product.stock).isEqualTo(0)
+        assertThat(actual[0].stock).isEqualTo(0)
     }
 }
