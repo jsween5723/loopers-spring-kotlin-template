@@ -8,10 +8,15 @@ management:
         ${spring.application.name}
   endpoints:
     web:
+      base-path: /actuator
       exposure:
         include:
-          - health
-          - prometheus
+        - health
+        - prometheus
+        - info
+        - metrics
+        - threaddump
+        - httpexchanges
   endpoint:
     health:
       probes:
@@ -24,6 +29,7 @@ management:
         readiness:
           show-components: always
     prometheus:
+      enable: true
       access: read_only
   health:
     livenessState:
