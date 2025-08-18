@@ -6,7 +6,7 @@ import jakarta.persistence.Entity
 import org.hibernate.annotations.NaturalId
 import java.math.BigDecimal
 
-@Entity(name = "user_points")
+@Entity
 class UserPoint(
     var point: BigDecimal = BigDecimal.ZERO,
     @NaturalId

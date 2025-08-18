@@ -1,28 +1,22 @@
 package com.loopers.application.product
 
 import com.loopers.domain.brand.Brand
+import com.loopers.domain.product.ProductInfo
 import com.loopers.domain.product.ProductSignal
-import com.loopers.domain.productlike.ProductLike
 
 class ProductInfoFactory {
-    fun generate(
-        productWithSignals: List<ProductSignal>,
-        brands: List<Brand>,
-        likes: List<ProductLike>,
-    ): List<ProductFacade.Result.ProductInfo> {
-        val brandIdMap = brands.associateBy { it.id }
-        return productWithSignals.map {
-            generate(productWithSignal = it, brand = brandIdMap[it.product.brandId], likes = likes)
-        }
-    }
-    fun generate(
+    fun generateResults(
+        infos: List<ProductInfo>,
+        userLikedProductIds: Set<Long>,
+    ): List<ProductFacade.Result.ProductResult> = infos
+        .map { generateResult(it, userLikedProductIds = userLikedProductIds) }
+
+    fun generateInfo(
         productWithSignal: ProductSignal,
         brand: Brand?,
-        likes: Collection<ProductLike>,
-    ): ProductFacade.Result.ProductInfo {
+    ): ProductInfo {
         val product = productWithSignal.product
-        val likeProductIdMap = likes.associateBy { it.productId }
-        return ProductFacade.Result.ProductInfo(
+        return ProductInfo(
             id = product.id,
             name = product.name,
             brandId = product.brandId,
@@ -33,7 +27,14 @@ class ProductInfoFactory {
             stock = product.stock,
             state = product.state,
             likeCount = productWithSignal.likeCount,
-            isLiked = likeProductIdMap.containsKey(product.id),
         )
+    }
+
+    fun generateResult(
+        productInfo: ProductInfo,
+        userLikedProductIds: Set<Long>,
+    ): ProductFacade.Result.ProductResult {
+        val isLiked = userLikedProductIds.contains(productInfo.id)
+        return ProductFacade.Result.ProductResult(productInfo, isLiked)
     }
 }

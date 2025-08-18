@@ -16,7 +16,7 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-
+docker/influx
 ### IntelliJ IDEA ###
 .idea
 *.iws
