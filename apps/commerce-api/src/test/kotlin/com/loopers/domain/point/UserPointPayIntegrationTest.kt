@@ -13,7 +13,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertNull
 
 @DisplayName("포인트 통합테스트")
-class UserPointIntegrationTest(
+class UserPointPayIntegrationTest(
     private val userPointFacade: UserPointFacade,
     private val fixture: IntegrationTestFixture,
 ) : AbstractIntegrationTest() {

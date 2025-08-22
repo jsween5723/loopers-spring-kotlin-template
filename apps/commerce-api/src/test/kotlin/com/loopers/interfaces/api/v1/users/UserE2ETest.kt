@@ -62,7 +62,7 @@ class UserE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
             val result = fixture.testRestTemplate.exchange<UserResponse.GetMe>(
                 USER_GET_ME_URI,
                 HttpMethod.GET,
-                HttpEntity.EMPTY,
+                HttpEntity(mapOf("X-USER-ID" to 사용자.id)),
             )
             // assert
             assertThat(result.statusCode).isEqualTo(HttpStatus.OK)
