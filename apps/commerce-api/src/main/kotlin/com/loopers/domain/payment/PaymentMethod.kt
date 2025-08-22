@@ -2,11 +2,7 @@ package com.loopers.domain.payment
 
 import java.math.BigDecimal
 
-interface PaymentMethod {
-    val type: Type
-    fun pay(amount: BigDecimal): PaymentInfo
-
-    enum class Type {
-        USER_POINT,
-    }
+sealed class PaymentMethod(val type: InternalPayProcessor.Type) {
+    class CardPay(val card: Card) : PaymentMethod(type = InternalPayProcessor.Type.CARD)
+    class PointPay(val amount: BigDecimal) : PaymentMethod(type = InternalPayProcessor.Type.USER_POINT)
 }
