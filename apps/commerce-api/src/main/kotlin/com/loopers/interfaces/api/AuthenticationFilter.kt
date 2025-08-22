@@ -5,14 +5,13 @@ import com.loopers.domain.user.UserId
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class AuthenticationFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        val authorizationString = response.getHeader(AUTHORIZATION)
+        val authorizationString = request.getHeader("X-USER-ID")
         if (authorizationString == null || authorizationString.isBlank()) {
             AuthenticationHolder.AUTHENTICATION_CONTEXT.set(Authentication(UserId(-1)))
         } else {
