@@ -19,7 +19,7 @@ import java.util.UUID
 @HttpExchange(url = "/api/v1/payments")
 interface PaymentGateway {
     @PostExchange
-    @CircuitBreaker(name = "pg-get")
+    @CircuitBreaker(name = "pg-request")
     @Retry(name = "pg-request", fallbackMethod = "requestPaymentFallback")
     fun request(@RequestBody request: PaymentDto.PaymentRequest): PaymentDto.TransactionResponse
 
