@@ -6,7 +6,8 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.loopers.support.error.CoreException
 import com.loopers.support.error.ErrorType
 import org.slf4j.LoggerFactory
-import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpStatus
+import org.springframework.http.ProblemDetail
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -24,30 +25,36 @@ class ApiControllerAdvice {
     private val log = LoggerFactory.getLogger(ApiControllerAdvice::class.java)
 
     @ExceptionHandler
-    fun handle(e: CoreException): ResponseEntity<ApiResponse<*>> {
+    fun handle(e: CoreException): ProblemDetail {
         log.warn("CoreException : {}", e.customMessage ?: e.message, e)
-        return failureResponse(errorType = e.errorType, errorMessage = e.customMessage)
+        val errorType = when (e.errorType) {
+            ErrorType.INTERNAL_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
+            ErrorType.BAD_REQUEST -> HttpStatus.BAD_REQUEST
+            ErrorType.NOT_FOUND -> HttpStatus.NOT_FOUND
+            ErrorType.CONFLICT -> HttpStatus.CONFLICT
+        }
+        return failureResponse(errorType = errorType, errorMessage = e.customMessage)
     }
 
     @ExceptionHandler
-    fun handleBadRequest(e: MethodArgumentTypeMismatchException): ResponseEntity<ApiResponse<*>> {
+    fun handleBadRequest(e: MethodArgumentTypeMismatchException): ProblemDetail {
         val name = e.name
         val type = e.requiredType?.simpleName ?: "unknown"
         val value = e.value ?: "null"
         val message = "요청 파라미터 '$name' (타입: $type)의 값 '$value'이(가) 잘못되었습니다."
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = message)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = message)
     }
 
     @ExceptionHandler
-    fun handleBadRequest(e: MissingServletRequestParameterException): ResponseEntity<ApiResponse<*>> {
+    fun handleBadRequest(e: MissingServletRequestParameterException): ProblemDetail {
         val name = e.parameterName
         val type = e.parameterType
         val message = "필수 요청 파라미터 '$name' (타입: $type)가 누락되었습니다."
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = message)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = message)
     }
 
     @ExceptionHandler
-    fun handleBadRequest(e: HttpMessageNotReadableException): ResponseEntity<ApiResponse<*>> {
+    fun handleBadRequest(e: HttpMessageNotReadableException): ProblemDetail {
         val errorMessage = when (val rootCause = e.rootCause) {
             is InvalidFormatException -> {
                 val fieldName = rootCause.path.joinToString(".") { it.fieldName ?: "?" }
@@ -81,11 +88,11 @@ class ApiControllerAdvice {
             else -> "요청 본문을 처리하는 중 오류가 발생했습니다. JSON 메세지 규격을 확인해주세요."
         }
 
-        return failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = errorMessage)
+        return failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = errorMessage)
     }
 
     @ExceptionHandler
-    fun handleBadRequest(e: ServerWebInputException): ResponseEntity<ApiResponse<*>> {
+    fun handleBadRequest(e: ServerWebInputException): ProblemDetail {
         fun extractMissingParameter(message: String): String {
             val regex = "'(.+?)'".toRegex()
             return regex.find(message)?.groupValues?.get(1) ?: ""
@@ -93,27 +100,25 @@ class ApiControllerAdvice {
 
         val missingParams = extractMissingParameter(e.reason ?: "")
         return if (missingParams.isNotEmpty()) {
-            failureResponse(errorType = ErrorType.BAD_REQUEST, errorMessage = "필수 요청 값 \'$missingParams\'가 누락되었습니다.")
+            failureResponse(errorType = HttpStatus.BAD_REQUEST, errorMessage = "필수 요청 값 \'$missingParams\'가 누락되었습니다.")
         } else {
-            failureResponse(errorType = ErrorType.BAD_REQUEST)
+            failureResponse(errorType = HttpStatus.BAD_REQUEST)
         }
     }
 
     @ExceptionHandler
-    fun handleNotFound(e: NoResourceFoundException): ResponseEntity<ApiResponse<*>> {
-        return failureResponse(errorType = ErrorType.NOT_FOUND)
-    }
+    fun handleNotFound(
+        e: NoResourceFoundException,
+    ): ProblemDetail = failureResponse(errorType = HttpStatus.NOT_FOUND)
 
     @ExceptionHandler
-    fun handle(e: Throwable): ResponseEntity<ApiResponse<*>> {
+    fun handle(e: Throwable): ProblemDetail {
         log.error("Exception : {}", e.message, e)
-        val errorType = ErrorType.INTERNAL_ERROR
-        return failureResponse(errorType = errorType)
+        return failureResponse(errorType = HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
-    private fun failureResponse(errorType: ErrorType, errorMessage: String? = null): ResponseEntity<ApiResponse<*>> =
-        ResponseEntity(
-            ApiResponse.fail(errorCode = errorType.code, errorMessage = errorMessage ?: errorType.message),
-            errorType.status,
-        )
+    private fun failureResponse(errorType: HttpStatus, errorMessage: String? = null): ProblemDetail =
+        ProblemDetail.forStatus(errorType).apply {
+            detail = errorMessage
+        }
 }

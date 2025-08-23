@@ -1,7 +1,6 @@
 package com.loopers.domain.coupon
 
 import com.loopers.domain.BaseEntity
-import com.loopers.domain.coupon.Coupon.Type
 import com.loopers.domain.user.UserId
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -20,8 +19,6 @@ class Coupon(val name: String, val amount: BigDecimal, @Enumerated(EnumType.STRI
             userId = userId,
             coupon = this,
         )
-
-    fun discount(price: BigDecimal): BigDecimal = DiscountPolicyAdaptor().createPolicy(this).discount(price)
     enum class Type {
         FIXED,
         RATE,
@@ -38,9 +35,4 @@ class IssuedCoupon(
 ) : BaseEntity() {
     @Version
     var version: Long = 0L
-    fun discount(price: BigDecimal): BigDecimal {
-        check(usedAt == null) { "이미 사용된 쿠폰입니다." }
-        usedAt = ZonedDateTime.now()
-        return coupon.discount(price)
-    }
 }

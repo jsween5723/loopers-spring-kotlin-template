@@ -8,17 +8,17 @@ import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.OneToMany
 import java.math.BigDecimal
+import java.util.UUID
 
 @Entity(name = "orders")
-class Order(var issuedCouponId: Long = 0L) : BaseEntity() {
+class Order(val issuedCouponId: Long = 0L) : BaseEntity() {
+    val orderId: UUID = UUID.randomUUID()
     val orderLines = OrderLines()
-
     val lineItems get() = orderLines.lineItems
     val totalPrice get() = orderLines.totalPrice
     val qtys get() = lineItems.map { IdAndQuantity(it.productId, it.quantity) }
-    fun applyCoupon(issuedCouponId: Long) {
-        this.issuedCouponId = issuedCouponId
-    }
+
+    fun calculatePaymentPrice(discountPolicy: DiscountPolicy): BigDecimal = discountPolicy.discount(totalPrice)
     fun changeTo(lineItems: List<LineItem>) {
         val orderLines = lineItems.map {
             OrderLine(

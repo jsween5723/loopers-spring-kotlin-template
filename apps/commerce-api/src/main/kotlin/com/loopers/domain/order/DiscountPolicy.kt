@@ -1,7 +1,5 @@
-package com.loopers.domain.coupon
+package com.loopers.domain.order
 
-import com.loopers.domain.coupon.Coupon.Type.FIXED
-import com.loopers.domain.coupon.Coupon.Type.RATE
 import java.math.BigDecimal
 
 sealed interface DiscountPolicy {
@@ -19,9 +17,6 @@ class FixedDiscountPolicy(val amount: BigDecimal) : DiscountPolicy {
     }
 }
 
-class DiscountPolicyAdaptor {
-    fun createPolicy(coupon: Coupon): DiscountPolicy = when (coupon.type) {
-        FIXED -> FixedDiscountPolicy(coupon.amount)
-        RATE -> RateDiscountPolicy(coupon.amount)
-    }
+class NoneDiscountPolicy : DiscountPolicy {
+    override fun discount(price: BigDecimal): BigDecimal = BigDecimal.ZERO
 }

@@ -1,5 +1,9 @@
 package com.loopers.domain.payment
 
-import org.springframework.data.jpa.repository.JpaRepository
-
-interface PaymentRepository : JpaRepository<Payment, Long>
+interface PaymentRepository {
+    fun findById(id: Long): Payment?
+    fun findExternalTransaction(transactionId: String): Transaction?
+    fun saveTransaction(transaction: Transaction): PaymentTransaction
+    fun request(payment: Payment)
+    fun save(payment: Payment): Payment
+}

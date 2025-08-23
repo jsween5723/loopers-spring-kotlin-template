@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 @DisplayName("포인트 단위테스트")
-class UserPointTest {
+class UserPointPayTest {
     private lateinit var userPoint: UserPoint
     private val wrongChargeAmount = (-1L).toBigDecimal()
 

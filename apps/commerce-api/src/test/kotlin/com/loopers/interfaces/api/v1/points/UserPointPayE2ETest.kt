@@ -18,12 +18,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 
 @DisplayName("포인트 E2E 테스트")
-class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
+class UserPointPayE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() {
     @Nested
     inner class `GET api_v1_points` {
 
         @Test
-        fun `조회 시 X-USER-ID 헤더가 없을 경우, 400 Bad Request 응답을 반환한다`() {
+        fun `조회 시 X-USER-ID 헤더가 없을 경우, 404 NOT_FOUND 응답을 반환한다`() {
             // arrange
             // act
             val result = fixture.testRestTemplate.exchange<ProblemDetail>(
@@ -33,7 +33,7 @@ class UserPointE2ETest(private val fixture: ApiTestFixture) : AbstractApiTest() 
             )
             // assert
             assertThat(requireNotNull(result.statusCode))
-                .isEqualTo(HttpStatus.BAD_REQUEST)
+                .isEqualTo(HttpStatus.NOT_FOUND)
         }
 
         @Test

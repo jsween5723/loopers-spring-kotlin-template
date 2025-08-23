@@ -9,7 +9,10 @@ server:
     accept-count: 100 # 대기 큐 크기 (default : 100)
     keep-alive-timeout: 60s # 60s
   max-http-request-header-size: 8KB
-
+payment-gateway:
+  base-url: http://localhost:8082
+  call-back-url: http://localhost:8080/api/v1/payments
+  client-id: 123123123
 spring:
   main:
     web-application-type: servlet
@@ -28,7 +31,70 @@ springdoc:
   use-fqn: true
   swagger-ui:
     path: /swagger-ui.html
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 50
+        slow-call-duration-threshold: 500ms
+        permitted-number-of-calls-in-half-open-state: 1
+        max-wait-duration-in-half-open-state: 1s
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        minimum-number-of-calls: 3
+        wait-duration-in-open-state: 2s
+    instances:
+      pg-request:
+        base-config: default
+        slow-call-duration-threshold: 1000ms
+      pg-get:
+        base-config: default
+        slow-call-duration-threshold: 400ms
 
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 100ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+        fail-after-max-attempts: true
+    instances:
+      pg-request:
+        base-config: default
+        wait-duration: 1000ms
+      pg-get:
+        max-attempts: 3
+        wait-duration: 100ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+          - java.net.ConnectException
+  bulkhead:
+    instances:
+      pg-request:
+        max-concurrent-calls: 10
+        max-wait-duration: 200ms
+      pg-get:
+        max-concurrent-calls: 100
+        max-wait-duration: 100ms
+  timelimiter:
+    instances:
+      pg-request:
+        timeout-duration: 3s
+        cancel-running-future: false
+      pg-get:
+        timeout-duration: 2s
+        cancel-running-future: false
 ---
 spring:
   config:

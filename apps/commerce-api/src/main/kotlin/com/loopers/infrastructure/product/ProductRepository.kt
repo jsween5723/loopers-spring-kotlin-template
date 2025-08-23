@@ -12,15 +12,13 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class ProductRepositoryImpl(private val jpaRepository: ProductJpaRepository) : ProductRepository {
-    override fun getByIdsForUpdate(ids: List<Long>): List<Product> = ids.map {
-        jpaRepository.findByIdForUpdate(it)
-            ?: throw EntityNotFoundException("$it 는 없는 상품입니다.")
-    }
 
     override fun getByIds(ids: List<Long>): List<Product> = ids.map {
         jpaRepository.findByIdOrNull(it)
         ?: throw EntityNotFoundException("$it 는 없는 상품입니다.")
     }
+
+    override fun findByIdForUpdate(productId: Long): Product? = jpaRepository.findByIdForUpdate(productId)
 
     override fun save(product: Product): Product = jpaRepository.save(product)
 }
@@ -28,6 +26,6 @@ class ProductRepositoryImpl(private val jpaRepository: ProductJpaRepository) : P
 @Repository
 interface ProductJpaRepository : JpaRepository<Product, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = "SELECT p FROM products p WHERE p.id = :id")
+    @Query(value = "SELECT p FROM Product p WHERE p.id = :id")
     fun findByIdForUpdate(id: Long): Product?
 }
