@@ -48,6 +48,9 @@ resilience4j:
       pg-request:
         base-config: default
         slow-call-duration-threshold: 1000ms
+      pg-get:
+        base-config: default
+        slow-call-duration-threshold: 400ms
 
   retry:
     configs:
@@ -57,12 +60,12 @@ resilience4j:
         enable-exponential-backoff: true
         exponential-backoff-multiplier: 2
         retry-exceptions:
-          - java.net.ConnectException            # 커넥션 연결 실패
-          - java.net.SocketTimeoutException      # 소켓 타임아웃
-          - java.io.IOException                  # IO 예외
-        ignore-exceptions:                       # 재시도 무시 예외 목록
-          - org.springframework.web.client.HttpClientErrorException    # Feign 400 예외는 재시도하지 않음
-        fail-after-max-attempts: true            # 최대 재시도 횟수 이후 실패 예외 발생 여부
+          - java.net.ConnectException
+          - java.net.SocketTimeoutException
+          - java.io.IOException
+        ignore-exceptions:
+          - org.springframework.web.client.HttpClientErrorException
+        fail-after-max-attempts: true
     instances:
       pg-request:
         base-config: default
@@ -79,18 +82,16 @@ resilience4j:
   bulkhead:
     instances:
       pg-request:
-        # ----- Bulkhead(동시 실행 제한) -----
-        max-concurrent-calls: 10                 # 동시에 실행 가능한 최대 요청 수 (초과 시 대기 또는 거절)
-        max-wait-duration: 200ms                 # 동시 요청 초과 시, 대기 가능한 최대 시간 (초과하면 BulkheadFullException 발생)
+        max-concurrent-calls: 10
+        max-wait-duration: 200ms
       pg-get:
         max-concurrent-calls: 100
         max-wait-duration: 100ms
   timelimiter:
     instances:
       pg-request:
-        # ----- TimeLimiter(요청 시간 제한) -----
-        timeout-duration: 3s                     # 요청 최대 수행 시간 (3초 초과 시 TimeoutException 발생)
-        cancel-running-future: false             # 타임아웃 발생 시 실행 중인 Future를 강제 취소할지 여부
+        timeout-duration: 3s
+        cancel-running-future: false
       pg-get:
         timeout-duration: 2s
         cancel-running-future: false
