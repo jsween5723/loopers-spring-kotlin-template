@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Component
 class OrderRepositoryImpl(private val jpaRepository: OrderJpaRepository) : OrderRepository {
@@ -14,10 +15,13 @@ class OrderRepositoryImpl(private val jpaRepository: OrderJpaRepository) : Order
 
     override fun getById(id: Long) =
         jpaRepository.findByIdOrNull(id = id) ?: throw EntityNotFoundException("$id 는 존재하지 않는 주문 정보입니다.")
+
+    override fun getByUuid(uuid: UUID): Order = jpaRepository.findByOrderId(uuid)
 }
 
 @Repository
 interface OrderJpaRepository : JpaRepository<Order, Long> {
     @Query("select o from orders o join fetch o.orderLines where o.id = :id")
     fun findByIdOrNull(id: Long): Order?
+    fun findByOrderId(orderId: UUID): Order
 }
