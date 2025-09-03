@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.ServerWebInputException
-import kotlin.collections.joinToString
-import kotlin.jvm.java
-import kotlin.text.isNotEmpty
-import kotlin.text.toRegex
 
 @RestControllerAdvice
 class ApiControllerAdvice {
     private val log = LoggerFactory.getLogger(ApiControllerAdvice::class.java)
+
+    @ExceptionHandler(IllegalAccessException::class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handle(e: IllegalAccessException): ProblemDetail {
+        log.error("IllegalAccess exception : {}", e.localizedMessage)
+        return failureResponse(errorType = HttpStatus.FORBIDDEN, errorMessage = e.localizedMessage)
+    }
 
     @ExceptionHandler(DataIntegrityViolationException::class)
     @ResponseStatus(HttpStatus.CONFLICT)
