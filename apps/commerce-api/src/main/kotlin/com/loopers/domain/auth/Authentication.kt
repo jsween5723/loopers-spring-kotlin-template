@@ -3,9 +3,9 @@ package com.loopers.domain.auth
 import java.util.UUID
 
 open class Authentication(val userId: UUID, val roles: Set<Role> = setOf(Role.USER)) {
-    fun hasRole(vararg targetRoles: Role) {
+    fun <T> hasRole(vararg targetRoles: Role, func: ()->T): T {
         targetRoles.forEach {
-            if(roles.contains(it)) return
+            if(roles.contains(it)) return func()
         }
         throw IllegalAccessException(" $roles does not have $targetRoles")
     }

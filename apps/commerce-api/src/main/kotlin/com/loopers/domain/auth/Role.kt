@@ -1,7 +1,6 @@
 package com.loopers.domain.auth
 
-import com.loopers.shared.EnumString
 
-enum class Role: EnumString<Role> {
+enum class Role {
     ANONYMOUS, USER
 }

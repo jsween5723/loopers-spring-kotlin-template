@@ -1,10 +1,10 @@
 package com.loopers
 
-import com.loopers.domain.IntegrationTest
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
-@IntegrationTest
+
+@SpringContextTest
 @DisplayName("컨텍스트 로딩 테스트")
 class CommerceApiContextTest {
     @Test
