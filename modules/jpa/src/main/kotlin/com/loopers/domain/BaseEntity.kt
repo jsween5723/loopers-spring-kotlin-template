@@ -1,13 +1,12 @@
 package com.loopers.domain
 
 import jakarta.persistence.Column
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.MappedSuperclass
 import jakarta.persistence.PrePersist
 import jakarta.persistence.PreUpdate
 import java.time.ZonedDateTime
+import java.util.UUID
 
 /**
  * 생성/수정/삭제 정보를 자동으로 관리해준다.
@@ -21,8 +20,7 @@ import java.time.ZonedDateTime
 @MappedSuperclass
 abstract class BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0
+    val id: UUID = UUID.randomUUID()
 
     @Column(name = "created_at", nullable = false, updatable = false)
     lateinit var createdAt: ZonedDateTime
